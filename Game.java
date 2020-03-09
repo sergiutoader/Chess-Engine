@@ -55,25 +55,30 @@ public class Game {
 		for(int i = 0; i < 8; i++){
 			for(int j = 0; j < 8; j++){
 				if(this.grid[i][j] instanceof Pawn && grid[i][j].color == false){
+
+					// calculare mutari posibile 
 					this.grid[i][j].updatePossibleMoves();
-					if(this.grid[i][j].possibleMoves[0] != null) {
 
-						// TODO - actualizare grid dupa mutare
-						// bout.write(String.format(getPosition(i,j) + this.grid[i][j].possibleMoves[0] + "\n").getBytes());
-						// bout.flush();
+					String nextPosition = this.grid[i][j].possibleMoves[0];
 
-						System.out.print("move " + getPosition(i,j) + this.grid[i][j].possibleMoves[0] + "\n");
+					if(nextPosition != null) {
+
+						//afisare mutare
+						bout.write(String.format("move " + getPosition(i,j) +
+							nextPosition + "\n").getBytes());
+						bout.flush();
 						
-						// Piece aux = this.grid[i][j];
-						// this.grid[i][j] = this.grid[this.getRow(this.grid[i][j].possibleMoves[0])][this.getColumn(this.grid[i][j].possibleMoves[0])];
-						// this.grid[this.getRow(this.grid[i][j].possibleMoves[0])][this.getColumn(this.grid[i][j].possibleMoves[0])] = aux;
+						// actualizare grid
+						Piece aux = this.grid[this.getRow(nextPosition)][
+							this.getColumn(nextPosition)];
 
-						Piece aux = this.grid[this.getRow(this.grid[i][j].possibleMoves[0])][this.getColumn(this.grid[i][j].possibleMoves[0])];
+						this.grid[this.getRow(nextPosition)][this.getColumn(
+							nextPosition)] = this.grid[i][j];
+						// actualizare camp pentru pozitie
+						this.grid[this.getRow(nextPosition)][this.getColumn(
+							nextPosition)].position = nextPosition;
 
-						this.grid[this.getRow(this.grid[i][j].possibleMoves[0])][this.getColumn(this.grid[i][j].possibleMoves[0])] = this.grid[i][j];
-						this.grid[this.getRow(this.grid[i][j].possibleMoves[0])][this.getColumn(this.grid[i][j].possibleMoves[0])].position = this.grid[i][j].possibleMoves[0];
-
-
+						// setare camp gol pe pozitia anterioara
 						this.grid[i][j] = new Empty(getPosition(i, j), false, this);
 						
 						return;
@@ -82,7 +87,9 @@ public class Game {
 			}
 		}
 
-		System.out.print("resign\n");
+		// se face resign daca nu se poate executa nicio mutare
+		bout.write("resign\n".getBytes());
+		bout.flush();
 	}
 
 	// intoarce pozitia sub forma de string
@@ -92,6 +99,8 @@ public class Game {
 		result.append(row + 1);
 		return result.toString();
 	}
+
+	// metode care intorc indicele si coloana in functie de string
 
 	public int getRow(String position){
 		return position.charAt(1) - '0' - 1;

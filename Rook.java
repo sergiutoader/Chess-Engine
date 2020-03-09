@@ -6,8 +6,8 @@ public class Rook extends Piece {
 		this.position = position;
 		this.color = color;
 		this.possibleMoves = new String[14];
-		this.game = game;	
-		
+		this.game = game;
+
 	}
 
 	public void updatePossibleMoves(){}
