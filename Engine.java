@@ -4,9 +4,14 @@ import java.io.*;
 public class Engine {
 	public static void main(String args[]) throws InterruptedException, IOException {
 
-		Game game = new Game();
+		// se creaza un joc nou cu engine-ul jucand cu negru
+		Game game = new Game(false);
  
 		int newGame = 1;
+		int pause = 0;
+
+		// partea pe care va juca engine-ul dupa comanda "force" 
+		boolean sideAfterForce = true;
 		Scanner input = new Scanner(System.in);
 
 		BufferedOutputStream bout = new BufferedOutputStream(System.out);
@@ -21,11 +26,9 @@ public class Engine {
 			while(true){
 				String command = input.nextLine();
 
-				if(command != null){
+				if(command != null && pause == 0){
 
-					if(command.equals("xboard")){
-						// prima comanda din input
-					} 
+					if(command.equals("xboard")){} 
 
 					if(command.equals("protover 2")){
 						bout.write("feature sigint=0\n".getBytes());
@@ -33,13 +36,25 @@ public class Engine {
 					}
 
 					if (command.equals("new")){
-						game = new Game();
+						game = new Game(false);
 						break;
+					}
+
+					if(command.equals("black")){
+						game.side = false;
+					}
+
+					if(command.equals("white")){
+						game.side = true;
 					}
 
 					if(command.equals("quit")){
 						newGame = 0;
 						break;
+					}
+
+					if(command.equals("force")){
+						pause = 1;
 					}
 
 					if(command.length() == 4){
@@ -52,6 +67,27 @@ public class Engine {
 					}
 
 			    }
+
+
+			    // dupa comanda "go" se revine in joc pe partea sideAfterForce si se neaga
+			    // aceasta variabila pentru a intra in joc
+			    // pe partea opusa la urmatoarea comanda force
+			    if(command != null && command.equals("go") && pause == 1){
+			    	pause = 0;
+			    	game.side = sideAfterForce;
+			    	sideAfterForce = !sideAfterForce;	
+			    // in cazul comenzii "new", engine-ul joaca cu negru
+			    } else if(command != null && command.equals("new") && pause == 1){
+			    	pause = 0;
+			    	sideAfterForce = true;
+			    	game = new Game(false);
+			    // daca se da alta comanda in afara de "go" cat timp engine-ul este in pauza,
+			    // (deci o mutare de la celalalt player), va trebui ca partea pe care intra in joc
+			    // engine-ul sa fie cea de pe care a iesit
+			    } else if(command != null && !(command.equals("go"))
+			    	&& !(command.equals("new")) && pause == 1){
+			    	sideAfterForce = game.side;
+				}	 	
 
 			}
 		}

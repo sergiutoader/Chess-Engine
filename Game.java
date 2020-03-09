@@ -3,11 +3,14 @@ import java.io.*;
 public class Game {
 	public Piece[][] grid;
 
+	public boolean side; // true = white, false = black;
+
 	public Piece getPiece(int row, int column){
 		return this.grid[row][column];
 	}
 
-	public Game(){
+	public Game(boolean side){
+		this.side = side;
 		grid = new Piece [8][8];
 		
 		// Spatii goale
@@ -54,7 +57,8 @@ public class Game {
 	public void makeMove(BufferedOutputStream bout) throws IOException{
 		for(int i = 0; i < 8; i++){
 			for(int j = 0; j < 8; j++){
-				if(this.grid[i][j] instanceof Pawn && grid[i][j].color == false){
+
+				if(this.grid[i][j] instanceof Pawn && grid[i][j].color == this.side){
 
 					// calculare mutari posibile 
 					this.grid[i][j].updatePossibleMoves();
