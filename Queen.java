@@ -1,3 +1,4 @@
+import java.util.*;
 
 public class Queen extends Piece {
 
@@ -5,10 +6,10 @@ public class Queen extends Piece {
 
 		this.position = position;
 		this.color = color;
-		this.possibleMoves = new String[27];
+		this.possibleMoves = new ArrayList <String>();
 		this.game = game;
 		
 	}
 
-	public void updatePossibleMoves(){}
+	public void updatePossibleMoves(boolean side){}
 }

@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 public class Game {
 	public Piece[][] grid;
@@ -44,12 +45,12 @@ public class Game {
 		grid[7][7] = new Rook(getPosition(7,7), false, this);
 
 		// Regine
-		grid[0][3] = new Queen(getPosition(0,3), true, this);
-		grid[7][4] = new Queen(getPosition(7,4), false, this);
+		grid[0][3] = new Queen(getPosition(0,4), true, this);
+		grid[7][4] = new Queen(getPosition(7,3), false, this);
 
 		// Regii
-		grid[0][4] = new King(getPosition(0,4), true, this);
-		grid[7][3] = new King(getPosition(7,3), false, this);
+		grid[0][4] = new King(getPosition(0,3), true, this);
+		grid[7][3] = new King(getPosition(7,4), false, this);
 
 
 	}
@@ -73,16 +74,58 @@ public class Game {
 
 	}
 
+	public boolean isCheck() throws FileNotFoundException {
+		PrintWriter wr = new PrintWriter(new File("out.txt"));
+		int i, j, k;
+		String kingPosition = null;
+		
+		for(i = 0; i < 8; i++) {
+			for (j = 0; j < 8; j++){
+				if(this.grid[i][j] instanceof King && this.grid[i][j].color == this.side) {
+					kingPosition = this.grid[i][j].position;
+					wr.append("---" + kingPosition);
+					break;
+				}
+			}
+		}
+		
+		for(i = 0; i < 8; i++) {
+			for (j = 0; j < 8; j++){
+				if(!(this.grid[i][j] instanceof Empty) && this.grid[i][j].color != this.side) {
+					this.grid[i][j].updatePossibleMoves(!(this.side));
+					for(k = 0; k < this.grid[i][j].possibleMoves.size() ; k++) {
+
+						wr.append(this.grid[i][j].possibleMoves.get(k) + " ");
+						if(this.grid[i][j] instanceof Pawn && (this.grid[i][j].possibleMoves.get(k).indexOf(kingPosition) >= 0) ) return true;
+					}
+					wr.append("\n");
+				}
+			}
+		}
+		wr.close();
+		return false;
+	}
+	
 	public void makeMove(BufferedOutputStream bout) throws IOException{
-		for(int i = 0; i < 8; i++){
-			for(int j = 0; j < 8; j++){
+		int i, j;
+		String nextPosition = null;
+		
+		if( this.isCheck()) {
+			bout.write("resign\n".getBytes());
+			bout.flush();
+		}
+		
+		for(i = 0; i < 8; i++){
+			for(j = 0; j < 8; j++){
 
 				if(this.grid[i][j] instanceof Pawn && grid[i][j].color == this.side){
 
 					// calculare mutari posibile 
-					this.grid[i][j].updatePossibleMoves();
+					this.grid[i][j].updatePossibleMoves(this.side);
 
-					String nextPosition = this.grid[i][j].possibleMoves[0];
+					if(this.grid[i][j].possibleMoves.size() > 0) {
+						nextPosition = this.grid[i][j].possibleMoves.get(0);
+					}
 
 					if(nextPosition != null) {
 
@@ -92,8 +135,6 @@ public class Game {
 						bout.flush();
 						
 						// actualizare grid
-						Piece aux = this.grid[this.getRow(nextPosition)][
-							this.getColumn(nextPosition)];
 
 						this.grid[this.getRow(nextPosition)][this.getColumn(
 							nextPosition)] = this.grid[i][j];

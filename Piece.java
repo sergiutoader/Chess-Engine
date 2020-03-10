@@ -1,12 +1,13 @@
+import java.util.*;
 
 public abstract class Piece {
 
 	public Game game;
 	public String position;
 	public boolean color;
-	public String [] possibleMoves;
+	public ArrayList <String> possibleMoves;
 	
-	public abstract void updatePossibleMoves();
+	public abstract void updatePossibleMoves(boolean side);
 
 	protected int getRow(){
 		return position.charAt(1) - '0' - 1;

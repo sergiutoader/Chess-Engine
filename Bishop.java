@@ -1,3 +1,4 @@
+import java.util.*;
 
 public class Bishop extends Piece {
 
@@ -5,9 +6,9 @@ public class Bishop extends Piece {
 
 		this.position = position;
 		this.color = color;
-		this.possibleMoves = new String[13];
+		this.possibleMoves = new ArrayList <String>();
 		this.game = game;		
 	}
 
-	public void updatePossibleMoves(){}
+	public void updatePossibleMoves(boolean side){}
 }
