@@ -70,12 +70,11 @@ public class Game {
 		this.grid[prevPositionRow][prevPositionColumn] = new Empty(getPosition(prevPositionRow, prevPositionColumn),
 				false, this);
 
-		enPoissant(prevPositionRow, prevPositionColumn, currPositionRow, currPositionColumn);
+		enPassant(prevPositionRow, prevPositionColumn, currPositionRow, currPositionColumn);
 
 	}
 	
-	// metoda prin care engine-ul determina miscarile "en poissant" ale oponentului
-	private void enPoissant(int prevPositionRow, int prevPositionColumn, int currPositionRow, int currPositionColumn) {
+	private void enPassant(int prevPositionRow, int prevPositionColumn, int currPositionRow, int currPositionColumn) {
 
 		if (this.grid[currPositionRow][currPositionColumn] instanceof Pawn) {
 

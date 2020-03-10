@@ -2,7 +2,7 @@
 --- README cu update-uri ---
 
 update - Sergiu - 11.03
--- engine-ul recunoaste mutarile de tip en poissant ale oponentului
+-- engine-ul recunoaste mutarile de tip en passant ale oponentului
 (testat doar cu engine ul pe negru)
 
 update - Sergiu + Andreea + Alin - 10.03

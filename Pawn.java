@@ -89,6 +89,6 @@ public class Pawn extends Piece{
 			}
 		}
 
-		// TODO - regula en poissant
+		// TODO - regula en passant
 	}
 }
