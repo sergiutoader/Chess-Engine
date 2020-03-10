@@ -62,6 +62,8 @@ public class Engine {
 							&& Character.isLetter(command.charAt(2))
 							&& Character.isDigit(command.charAt(1))
 							&& Character.isDigit(command.charAt(3))){
+
+							game.opponentMove(command);
 							game.makeMove(bout);
 						}
 					}

@@ -5,6 +5,7 @@ public abstract class Piece {
 	public String position;
 	public boolean color;
 	public String [] possibleMoves;
+	
 	public abstract void updatePossibleMoves();
 
 	protected int getRow(){

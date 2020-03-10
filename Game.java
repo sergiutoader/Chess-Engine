@@ -15,12 +15,12 @@ public class Game {
 		
 		// Spatii goale
 		for(int i = 2; i < 6; i++){
-			for(int j = 0; j < 7; j++){
+			for(int j = 0; j <= 7; j++){
 				grid[i][j] = new Empty(getPosition(i,j), false, this);
 			}
 		}
 		// Pioni
-		for(int j = 0; j < 7; j++){
+		for(int j = 0; j <= 7; j++){
 			grid[1][j] = new Pawn(getPosition(1,j), true, this);
 			grid[6][j] = new Pawn(getPosition(6,j), false, this);
 		}
@@ -51,6 +51,25 @@ public class Game {
 		grid[0][4] = new King(getPosition(0,4), true, this);
 		grid[7][3] = new King(getPosition(7,3), false, this);
 
+
+	}
+
+	public void opponentMove(String command){
+		// calculare indicii pentru pozitia anterioara
+		// si curenta in functie de stringul command
+		int prevPositionRow = getRow(command.substring(0,2));
+		int prevPositionColumn = getColumn(command.substring(0,2));
+		int currPositionRow = getRow(command.substring(2));
+		int currPositionColumn = getColumn(command.substring(2));
+
+		// swap intre piesa curenta si empty
+		Piece aux = this.grid[prevPositionRow][prevPositionColumn];
+
+		this.grid[currPositionRow][currPositionColumn] = aux;
+		this.grid[currPositionRow][currPositionColumn].position = command.substring(2);
+
+		this.grid[prevPositionRow][prevPositionColumn] = new Empty(
+			getPosition(prevPositionRow, prevPositionColumn), false, this);
 
 	}
 

@@ -19,23 +19,6 @@ public class Pawn extends Piece{
 			this.possibleMoves[i] = null;
 		}
 
-		// mutare 2 pozitii in fata(negru)
-		if( (this.getRow() == 6)
-			&& (this.game.getPiece(this.getRow() - 1, this.getColumn() ) instanceof Empty)
-			&& (this.game.getPiece(this.getRow() - 2, this.getColumn()) instanceof Empty)){
-			
-			this.possibleMoves[idx++] = this.game.getPosition(
-				this.getRow() - 2, this.getColumn());
-		}
-
-		// mutare o pozitie in fata (negru)
-		if((this.getRow() > 0)
-			&& (this.game.getPiece(this.getRow() - 1, this.getColumn()) instanceof Empty)){
-			
-			this.possibleMoves[idx++] = this.game.getPosition(
-				this.getRow() - 1, this.getColumn());
-		}
-
 		// cucerire piesa stanga fata (negru)
 		if( (this.getRow() > 0)
 			&& (this.getColumn() > 0)
@@ -48,12 +31,29 @@ public class Pawn extends Piece{
 
 		// cucerire piesa dreapta fata (negru)
 		if( (this.getRow() > 0)
-			&& (this.getColumn() < 6)
-			&& !(this.game.getPiece(this.getRow() - 1, this.getColumn() + 1) instanceof Empty)
-			&& this.game.getPiece(this.getRow() - 1, this.getColumn() + 1).color == true){
+			&& (this.getColumn() < 7)
+			&& (!(this.game.getPiece(this.getRow() - 1, this.getColumn() + 1) instanceof Empty))
+			&& (this.game.getPiece(this.getRow() - 1, this.getColumn() + 1).color == true) ){
 			
 			this.possibleMoves[idx++] = this.game.getPosition(
 				this.getRow() - 1, this.getColumn() + 1);
+		}
+
+		// mutare 2 pozitii in fata(negru)
+		if( (this.getRow() == 6)
+			&& (this.game.getPiece(this.getRow() - 1, this.getColumn()) instanceof Empty)
+			&& (this.game.getPiece(this.getRow() - 2, this.getColumn()) instanceof Empty)){
+			
+			this.possibleMoves[idx++] = this.game.getPosition(
+				this.getRow() - 2, this.getColumn());
+		}
+
+		// mutare o pozitie in fata (negru)
+		if((this.getRow() > 0)
+			&& (this.game.getPiece(this.getRow() - 1, this.getColumn()) instanceof Empty)){
+			
+			this.possibleMoves[idx++] = this.game.getPosition(
+				this.getRow() - 1, this.getColumn());
 		}
 
 		// TODO - regula en poissant
