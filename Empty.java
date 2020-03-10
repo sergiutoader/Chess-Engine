@@ -1,4 +1,5 @@
 
+
 public class Empty extends Piece {
 
 	public Empty(String position, boolean color, Game game){

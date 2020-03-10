@@ -1,3 +1,4 @@
+
 import java.util.*;
 
 public class Queen extends Piece {

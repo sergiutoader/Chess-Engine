@@ -1,6 +1,10 @@
 
 --- README cu update-uri ---
 
+update - Sergiu - 11.03
+-- engine-ul recunoaste mutarile de tip en poissant ale oponentului
+(testat doar cu engine ul pe negru)
+
 update - Sergiu + Andreea + Alin - 10.03
 -- rezolvat bug-uri
 -- implementat sah-mat (resign cand e in sah)
