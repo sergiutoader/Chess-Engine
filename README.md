@@ -1,6 +1,10 @@
 
 --- README cu update-uri ---
 
+update - Sergiu + Andreea + Alin - 10.03
+-- rezolvat bug-uri
+-- implementat sah-mat (resign cand e in sah)
+-- adaugat ArrayList in loc de vector
 
 update - Sergiu - 10.03
 
