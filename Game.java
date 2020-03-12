@@ -182,19 +182,9 @@ public class Game {
 		}
 	}
 
-	public boolean isCheck() {
-
+	public boolean isCheck(String kingPosition) {
+		
 		int i, j, k;
-		String kingPosition = null;
-
-		for (i = 0; i < 8; i++) {
-			for (j = 0; j < 8; j++) {
-				if (this.grid[i][j] instanceof King && this.grid[i][j].color == this.side) {
-					kingPosition = this.grid[i][j].position;
-					break;
-				}
-			}
-		}
 
 		for (i = 0; i < 8; i++) {
 			for (j = 0; j < 8; j++) {
@@ -213,13 +203,26 @@ public class Game {
 
 	public void makeMove(BufferedOutputStream bout) throws IOException {
 
-		if (this.isCheck()) {
-			bout.write("resign\n".getBytes());
+		int i, j, k;
+		String kingPosition = null;		
+		String nextPosition = null;
+
+
+		// Search for king position
+		for (i = 0; i < 8; i++) {
+			for (j = 0; j < 8; j++) {
+				if (this.grid[i][j] instanceof King && this.grid[i][j].color == this.side) {
+					kingPosition = this.grid[i][j].position;
+					break;
+				}
+			}
+		}
+		
+		if (this.isCheck(kingPosition) ) {
+			bout.write("resign\n".getBytes() );
 			bout.flush();
 		}
 
-		int i, j;
-		String nextPosition = null;
 
 		if (this.side == false) {
 
@@ -311,6 +314,12 @@ public class Game {
 
 	public int getColumn(String position) {
 		return position.charAt(0) - 'a';
+	}
+	
+	// vad daca in spatiul cautat se afla cumva vreo piesa de-a mea
+	public boolean freeSpace(int row, int column) {
+		if(this.grid[row][column].color == this.side)return false;
+		return true;
 	}
 
 }
