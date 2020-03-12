@@ -45,11 +45,11 @@ public class Game {
 
 		// Regine
 		grid[0][3] = new Queen(getPosition(0, 3), true, this);
-		grid[7][4] = new Queen(getPosition(7, 4), false, this);
+		grid[7][3] = new Queen(getPosition(7, 3), false, this);
 
 		// Regii
 		grid[0][4] = new King(getPosition(0, 4), true, this);
-		grid[7][3] = new King(getPosition(7, 3), false, this);
+		grid[7][4] = new King(getPosition(7, 4), false, this);
 
 	}
 
