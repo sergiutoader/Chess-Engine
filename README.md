@@ -1,6 +1,9 @@
 
 --- README cu update-uri ---
 
+update - Andreea + Sergiu + Alin - 12.03
+-- rezolvat bug - engine-ul nu stia sa inceapa cand era alb in modul two machines
+
 update - Sergiu - 11.03
 -- engine-ul recunoaste mutarile de tip en passant ale oponentului
 (testat doar cu engine ul pe negru)

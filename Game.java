@@ -73,7 +73,7 @@ public class Game {
 		enPassant(prevPositionRow, prevPositionColumn, currPositionRow, currPositionColumn);
 
 	}
-	
+
 	private void enPassant(int prevPositionRow, int prevPositionColumn, int currPositionRow, int currPositionColumn) {
 
 		if (this.grid[currPositionRow][currPositionColumn] instanceof Pawn) {
@@ -161,35 +161,71 @@ public class Game {
 			bout.write("resign\n".getBytes());
 			bout.flush();
 		}
+		
+		if(this.side == false) {
+			
+			for (i = 0; i < 8; i++) {
+				for (j = 0; j < 8; j++) {
 
-		for (i = 0; i < 8; i++) {
-			for (j = 0; j < 8; j++) {
+					if (this.grid[i][j] instanceof Pawn && grid[i][j].color == this.side) {
 
-				if (this.grid[i][j] instanceof Pawn && grid[i][j].color == this.side) {
+						// calculare mutari posibile
+						this.grid[i][j].updatePossibleMoves(this.side);
 
-					// calculare mutari posibile
-					this.grid[i][j].updatePossibleMoves(this.side);
+						if (this.grid[i][j].possibleMoves.size() > 0) {
+							nextPosition = this.grid[i][j].possibleMoves.get(0);
+						}
 
-					if (this.grid[i][j].possibleMoves.size() > 0) {
-						nextPosition = this.grid[i][j].possibleMoves.get(0);
+						if (nextPosition != null) {
+
+							// afisare mutare
+							bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
+							bout.flush();
+
+							// actualizare grid
+
+							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
+							// actualizare camp pentru pozitie
+							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)].position = nextPosition;
+
+							// setare camp gol pe pozitia anterioara
+							this.grid[i][j] = new Empty(getPosition(i, j), false, this);
+
+							return;
+						}
 					}
+				}
+			} 
+		} else {
+			for (i = 7; i >= 0; i--) {
+				for (j = 7; j >= 0; j--) {
 
-					if (nextPosition != null) {
+					if (this.grid[i][j] instanceof Pawn && grid[i][j].color == this.side) {
 
-						// afisare mutare
-						bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
-						bout.flush();
+						// calculare mutari posibile
+						this.grid[i][j].updatePossibleMoves(this.side);
 
-						// actualizare grid
+						if (this.grid[i][j].possibleMoves.size() > 0) {
+							nextPosition = this.grid[i][j].possibleMoves.get(0);
+						}
 
-						this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
-						// actualizare camp pentru pozitie
-						this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)].position = nextPosition;
+						if (nextPosition != null) {
 
-						// setare camp gol pe pozitia anterioara
-						this.grid[i][j] = new Empty(getPosition(i, j), false, this);
+							// afisare mutare
+							bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
+							bout.flush();
 
-						return;
+							// actualizare grid
+
+							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
+							// actualizare camp pentru pozitie
+							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)].position = nextPosition;
+
+							// setare camp gol pe pozitia anterioara
+							this.grid[i][j] = new Empty(getPosition(i, j), false, this);
+
+							return;
+						}
 					}
 				}
 			}
