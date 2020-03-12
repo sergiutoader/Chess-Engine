@@ -12,5 +12,60 @@ public class Rook extends Piece {
 
 	}
 
-	public void updatePossibleMoves(boolean side){}
+	public void updatePossibleMoves(boolean side) {
+		int row, column, i, j;
+		Game game;
+		
+		row = this.getRow();
+		column = this.getColumn();
+		game = this.game;
+		
+		// Sus
+		i = row;
+		j = column;
+		while(true) {
+			i++;
+			
+			if(i < 0 || i > 7 || j < 0 || j > 7)break;
+			
+			if(game.freeSpace(i, j) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(!(game.getPiece(i, j) instanceof Empty) )break;
+		}
+		
+		// Jos
+		i = row;
+		j = column;
+		while(true) {
+			i--;
+			
+			if(i < 0 || i > 7 || j < 0 || j > 7)break;
+			
+			if(game.freeSpace(i, j) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(!(game.getPiece(i, j) instanceof Empty) )break;
+		}
+				
+		// Stanga
+		i = row;
+		j = column;
+		while(true) {
+			j--;
+			
+			if(i < 0 || i > 7 || j < 0 || j > 7)break;
+			
+			if(game.freeSpace(i, j) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(!(game.getPiece(i, j) instanceof Empty) )break;
+		}
+		
+		// Dreapta
+		i = row;
+		j = column;
+		while(true) {
+			j++;
+			
+			if(i < 0 || i > 7 || j < 0 || j > 7)break;
+			
+			if(game.freeSpace(i, j) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(!(game.getPiece(i, j) instanceof Empty) )break;
+		}
+	}
 }

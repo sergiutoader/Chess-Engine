@@ -11,5 +11,64 @@ public class Bishop extends Piece {
 		this.game = game;		
 	}
 
-	public void updatePossibleMoves(boolean side){}
+	public void updatePossibleMoves(boolean side) {
+		int row, column, i, j;
+		Game game;
+		
+		row = this.getRow();
+		column = this.getColumn();
+		game = this.game;
+		
+		// Stanga-sus
+		i = row;
+		j = column;
+		while(true) {
+			i++;
+			j--;
+			
+			if(i < 0 || i > 7 || j < 0 || j > 7)break;
+			
+			if(game.freeSpace(i, j) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(!(game.getPiece(i, j) instanceof Empty) )break;
+		}
+		
+		// Dreapta-sus
+		i = row;
+		j = column;
+		while(true) {
+			i++;
+			j++;
+			
+			if(i < 0 || i > 7 || j < 0 || j > 7)break;
+			
+			if(game.freeSpace(i, j) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(!(game.getPiece(i, j) instanceof Empty) )break;
+		}
+				
+		// Stanga-jos
+		i = row;
+		j = column;
+		while(true) {
+			i--;
+			j--;
+			
+			if(i < 0 || i > 7 || j < 0 || j > 7)break;
+			
+			if(game.freeSpace(i, j) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(!(game.getPiece(i, j) instanceof Empty) )break;
+		}
+		
+		// Dreapta-jos
+		i = row;
+		j = column;
+		while(true) {
+			i--;
+			j++;
+			
+			if(i < 0 || i > 7 || j < 0 || j > 7)break;
+			
+			if(game.freeSpace(i, j) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(!(game.getPiece(i, j) instanceof Empty) )break;
+		}
+	}
 }
