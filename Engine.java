@@ -34,7 +34,7 @@ public class Engine {
 					}
 
 					if (command.equals("protover 2")) {
-						bout.write("feature sigint=0 side=1\n".getBytes());
+						bout.write("feature sigint=0 myName=\"bigbrain\" side=1\n".getBytes());
 						bout.flush();
 					}
 
@@ -67,6 +67,7 @@ public class Engine {
 
 							game.opponentMove(command);
 							game.makeMove(bout);
+							game.printGrid();
 						}
 					}
 

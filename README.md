@@ -1,6 +1,10 @@
 
 --- README cu update-uri ---
 
+update - Sergiu - 12.03
+-- bug fix - engine-ul jucand pe alb nu recunostea sahul si mutarile
+en passant ale oponentului
+
 update - Andreea + Sergiu + Alin - 12.03
 -- rezolvat bug - engine-ul nu stia sa inceapa cand era alb in modul two machines
 
