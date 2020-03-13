@@ -14,7 +14,7 @@ public class Rook extends Piece {
 
 	public void updatePossibleMoves(boolean side) {
 		
-		// resetare vector possibleMoves
+		// resetare arrayList possibleMoves
 		this.possibleMoves = new ArrayList <String>();
 		
 		int row, column, i, j;

@@ -8,7 +8,7 @@ grid-ul
 si actualizeaza grid-ul
 -- engine-ul transforma mereu in regina pionul atunci cand ajunge cu el in baza
 oponentului
--- implementare mutari posibile pentru tura, nebun, regina
+-- implementare mutari posibile pentru tura, nebun, regina, cal
 -- engine-ul recunoaste cand regele lui este atacat de piesele mentionate mai
 sus si da resign 
 

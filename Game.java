@@ -68,20 +68,16 @@ public class Game {
 			this.grid[currRow][currColumn] = null;
 			switch (command.charAt(4)) {
 			case 'q':
-				this.grid[currRow][currColumn] = new Queen(
-						getPosition(currRow, currColumn), !(this.side), this);
+				this.grid[currRow][currColumn] = new Queen(getPosition(currRow, currColumn), !(this.side), this);
 				break;
 			case 'r':
-				this.grid[currRow][currColumn] = new Rook(
-						getPosition(currRow, currColumn), !(this.side), this);
+				this.grid[currRow][currColumn] = new Rook(getPosition(currRow, currColumn), !(this.side), this);
 				break;
 			case 'b':
-				this.grid[currRow][currColumn] = new Bishop(
-						getPosition(currRow, currColumn), !(this.side), this);
+				this.grid[currRow][currColumn] = new Bishop(getPosition(currRow, currColumn), !(this.side), this);
 				break;
 			case 'n':
-				this.grid[currRow][currColumn] = new Knight(
-						getPosition(currRow, currColumn), !(this.side), this);
+				this.grid[currRow][currColumn] = new Knight(getPosition(currRow, currColumn), !(this.side), this);
 				break;
 			}
 		} else {
@@ -90,8 +86,7 @@ public class Game {
 			this.grid[currRow][currColumn].position = command.substring(2);
 		}
 		// se actualizeaza pozitia veche cu empty
-		this.grid[prevRow][prevColumn] = new Empty(getPosition(prevRow, prevColumn),
-				false, this);
+		this.grid[prevRow][prevColumn] = new Empty(getPosition(prevRow, prevColumn), false, this);
 
 		enPassant(prevRow, prevColumn, currRow, currColumn);
 		castling(prevRow, prevColumn, currRow, currColumn);
@@ -109,14 +104,14 @@ public class Game {
 					if (prevColumn == currColumn + 1) {
 						if ((this.grid[currRow - 1][currColumn] instanceof Pawn)
 								&& (this.grid[currRow - 1][currColumn].color == false)) {
-							this.grid[currRow - 1][currColumn] = new Empty(
-									getPosition(currRow - 1, currColumn), false, this);
+							this.grid[currRow - 1][currColumn] = new Empty(getPosition(currRow - 1, currColumn), false,
+									this);
 						}
 					} else if (prevColumn == currColumn - 1) {
 						if ((this.grid[currRow - 1][currColumn] instanceof Pawn)
 								&& (this.grid[currRow - 1][currColumn].color == false)) {
-							this.grid[currRow - 1][currColumn] = new Empty(
-									getPosition(currRow - 1, currColumn), false, this);
+							this.grid[currRow - 1][currColumn] = new Empty(getPosition(currRow - 1, currColumn), false,
+									this);
 						}
 					}
 				}
@@ -128,14 +123,14 @@ public class Game {
 					if (prevColumn == currColumn + 1) {
 						if ((this.grid[currRow + 1][currColumn] instanceof Pawn)
 								&& (this.grid[currRow + 1][currColumn].color == true)) {
-							this.grid[currRow + 1][currColumn] = new Empty(
-									getPosition(currRow + 1, currColumn), false, this);
+							this.grid[currRow + 1][currColumn] = new Empty(getPosition(currRow + 1, currColumn), false,
+									this);
 						}
 					} else if (prevColumn == currColumn - 1) {
 						if ((this.grid[currRow + 1][currColumn] instanceof Pawn)
 								&& (this.grid[currRow + 1][currColumn].color == true)) {
-							this.grid[currRow + 1][currColumn] = new Empty(
-									getPosition(currRow + 1, currColumn), false, this);
+							this.grid[currRow + 1][currColumn] = new Empty(getPosition(currRow + 1, currColumn), false,
+									this);
 						}
 					}
 				}
@@ -150,16 +145,14 @@ public class Game {
 			// rocada de 2
 			if (currRow == prevRow && currColumn == prevColumn + 2) {
 				this.grid[currRow][currColumn - 1] = this.grid[currRow][7];
-				this.grid[currRow][currColumn - 1].position = getPosition(currRow,
-						currColumn - 1);
+				this.grid[currRow][currColumn - 1].position = getPosition(currRow, currColumn - 1);
 
 				this.grid[currRow][7] = new Empty(getPosition(currRow, 7), false, this);
 			}
 			// rocada de 3
 			else if (currRow == prevRow && currColumn == prevColumn - 2) {
 				this.grid[currRow][currColumn + 1] = this.grid[currRow][0];
-				this.grid[currRow][currColumn + 1].position = getPosition(currRow,
-						currColumn + 1);
+				this.grid[currRow][currColumn + 1].position = getPosition(currRow, currColumn + 1);
 
 				this.grid[currRow][0] = new Empty(getPosition(currRow, 0), false, this);
 			}
@@ -244,8 +237,7 @@ public class Game {
 
 							return;
 						}
-					} else if ((this.grid[i][j] instanceof Rook || this.grid[i][j] instanceof Bishop
-							|| this.grid[i][j] instanceof Queen) && grid[i][j].color == this.side) {
+					} else if ((this.grid[i][j] instanceof Empty == false) && grid[i][j].color == this.side) {
 
 						// calculare mutari posibile
 						this.grid[i][j].updatePossibleMoves(this.side);
@@ -311,8 +303,7 @@ public class Game {
 
 							return;
 						}
-					} else if ((this.grid[i][j] instanceof Rook || this.grid[i][j] instanceof Bishop
-							|| this.grid[i][j] instanceof Queen) && grid[i][j].color == this.side) {
+					} else if ((this.grid[i][j] instanceof Empty == false) && grid[i][j].color == this.side) {
 
 						// calculare mutari posibile
 						this.grid[i][j].updatePossibleMoves(this.side);
