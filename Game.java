@@ -88,13 +88,40 @@ public class Game {
 		// se actualizeaza pozitia veche cu empty
 		this.grid[prevRow][prevColumn] = new Empty(getPosition(prevRow, prevColumn), false, this);
 
-		enPassant(prevRow, prevColumn, currRow, currColumn);
+		engineEnPasant(prevRow, prevColumn, currRow, currColumn);
+		opponentEnPassant(prevRow, prevColumn, currRow, currColumn);
 		castling(prevRow, prevColumn, currRow, currColumn);
+	}
+
+	// verifica daca engine-ul poate efectua o mutare de tip en passant si seteaza
+	// campul enPassant al pionului care poate efectua acea mutare cu pozitia pe
+	// care se poate muta
+	private void engineEnPasant(int prevRow, int prevColumn, int currRow, int currColumn) {
+
+		if (this.side == false && prevRow == 1 && currRow == 3) {
+			if (currColumn > 0 && this.grid[currRow][currColumn - 1] instanceof Pawn
+					&& this.grid[currRow][currColumn - 1].color == false) {
+				this.grid[currRow][currColumn - 1].enPassant = this.getPosition(currRow - 1, currColumn);
+			}
+			if (currColumn < 7 && this.grid[currRow][currColumn + 1] instanceof Pawn
+					&& this.grid[currRow][currColumn + 1].color == false) {
+				this.grid[currRow][currColumn + 1].enPassant = this.getPosition(currRow - 1, currColumn);
+			}
+		} else if (this.side == true && prevRow == 6 && currRow == 4) {
+			if (currColumn > 0 && this.grid[currRow][currColumn - 1] instanceof Pawn
+					&& this.grid[currRow][currColumn - 1].color == true) {
+				this.grid[currRow][currColumn - 1].enPassant = this.getPosition(currRow + 1, currColumn);
+			}
+			if (currColumn < 7 && this.grid[currRow][currColumn + 1] instanceof Pawn
+					&& this.grid[currRow][currColumn + 1].color == true) {
+				this.grid[currRow][currColumn + 1].enPassant = this.getPosition(currRow + 1, currColumn);
+			}
+		}
 	}
 
 	// verifica daca oponentul a efectuat o mutare de tip en passant si actualizeaza
 	// grid-ul
-	private void enPassant(int prevRow, int prevColumn, int currRow, int currColumn) {
+	private void opponentEnPassant(int prevRow, int prevColumn, int currRow, int currColumn) {
 
 		if (this.grid[currRow][currColumn] instanceof Pawn) {
 			// conditii (negru): linia curenta 5, mutare pion alb pe diagonala stanga sau
@@ -217,12 +244,22 @@ public class Game {
 
 						if (nextPosition != null) {
 
+							// daca este o mutare de tip en passant, se elimina pionul din spatele
+							// destinatiei
+							if (this.grid[i][j].enPassant != null) {
+								int row = this.getRow(nextPosition) + 1;
+								int column = this.getColumn(nextPosition);
+								this.grid[row][column] = new Empty(this.getPosition(row, column), false, this);
+								// se reseteaza campul pentru pionul mutat
+								this.grid[i][j].enPassant = null;
+							}
+
 							// afisare mutare
 							bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
 							bout.flush();
 
 							// daca pionul ajunge in baza oponentului, se transforma in regina
-							if (this.grid[i][j] instanceof Pawn && this.getRow(nextPosition) == 0) {
+							if (this.getRow(nextPosition) == 0) {
 								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Queen(
 										nextPosition, false, this);
 							} else {
@@ -271,7 +308,7 @@ public class Game {
 			for (i = 7; i >= 0; i--) {
 				for (j = 7; j >= 0; j--) {
 
-					if (this.grid[i][j] instanceof Pawn && grid[i][j].color == this.side) {
+					if (this.grid[i][j] instanceof Pawn && this.grid[i][j].color == this.side) {
 
 						// calculare mutari posibile
 						this.grid[i][j].updatePossibleMoves(this.side);
@@ -281,6 +318,16 @@ public class Game {
 						}
 
 						if (nextPosition != null) {
+							
+							// daca este o mutare de tip en passant, se elimina pionul din spatele
+							// destinatiei
+							if (this.grid[i][j].enPassant != null) {
+								int row = this.getRow(nextPosition) - 1;
+								int column = this.getColumn(nextPosition);
+								this.grid[row][column] = new Empty(this.getPosition(row, column), false, this);
+								// se reseteaza campul pentru pionul mutat
+								this.grid[i][j].enPassant = null;
+							}
 
 							// afisare mutare
 							bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());

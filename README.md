@@ -2,6 +2,7 @@
 --- README cu update-uri ---
 
 update - Sergiu + Andreea -- 13.03
+-- engine-ul e capabil sa execute miscari de tip en passant atunci cand este posibil
 -- engine-ul recunoaste mutarile de tip rocada ale oponentului si actualizeaza
 grid-ul
 -- engine-ul recunoaste transformarile pionului in alta piesa ale oponentului

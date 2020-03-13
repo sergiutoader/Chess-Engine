@@ -7,6 +7,7 @@ public abstract class Piece {
 	public String position;
 	public boolean color;
 	public ArrayList <String> possibleMoves;
+	public String enPassant = null;
 	
 	public abstract void updatePossibleMoves(boolean side);
 

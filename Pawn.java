@@ -23,6 +23,11 @@ public class Pawn extends Piece {
 
 		if (side == false) {
 
+			// mutare de tip en passant
+			if (this.enPassant != null) {
+				this.possibleMoves.add(enPassant);
+			}
+
 			// cucerire piesa stanga fata (negru)
 			if ((row > 0) && (column > 0) && (!(this.game.getPiece(row - 1, column - 1) instanceof Empty))
 					&& (this.game.getPiece(row - 1, column - 1).color == true)) {
@@ -50,7 +55,12 @@ public class Pawn extends Piece {
 				this.possibleMoves.add(this.game.getPosition(row - 1, column));
 			}
 		} else {
-
+			
+			// mutare de tip en passant
+			if (this.enPassant != null) {
+				this.possibleMoves.add(enPassant);
+			}
+			
 			// cucerire piesa stanga fata (alb)
 			if ((row < 7) && (column > 0) && (!(this.game.getPiece(row + 1, column - 1) instanceof Empty))
 					&& (this.game.getPiece(row + 1, column - 1).color == false)) {
@@ -78,7 +88,5 @@ public class Pawn extends Piece {
 				this.possibleMoves.add(this.game.getPosition(row + 1, column));
 			}
 		}
-
-		// TODO - regula en passant
 	}
 }
