@@ -1,6 +1,17 @@
 
 --- README cu update-uri ---
 
+update - Sergiu + Andreea -- 13.03
+-- engine-ul recunoaste mutarile de tip rocada ale oponentului si actualizeaza
+grid-ul
+-- engine-ul recunoaste transformarile pionului in alta piesa ale oponentului
+si actualizeaza grid-ul
+-- engine-ul transforma mereu in regina pionul atunci cand ajunge cu el in baza
+oponentului
+-- implementare mutari posibile pentru tura, nebun, regina
+-- engine-ul recunoaste cand regele lui este atacat de piesele mentionate mai
+sus si da resign 
+
 update - Sergiu - 12.03
 -- bug fix - engine-ul jucand pe alb nu recunostea sahul si mutarile
 en passant ale oponentului

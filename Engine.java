@@ -61,7 +61,7 @@ public class Engine {
 						pause = 1;
 					}
 
-					if (command.length() == 4) {
+					if (command.length() == 4 || command.length() == 5) {
 						if (Character.isLetter(command.charAt(0)) && Character.isLetter(command.charAt(2))
 								&& Character.isDigit(command.charAt(1)) && Character.isDigit(command.charAt(3))) {
 
