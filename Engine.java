@@ -3,7 +3,7 @@ import java.util.Scanner;
 import java.io.*;
 
 public class Engine {
-	public static void main(String args[]) throws InterruptedException, IOException {
+	public static void main(String args[]) throws IOException {
 
 		// se creaza un joc nou cu engine-ul jucand cu negru
 		Game game = new Game(false);
@@ -34,7 +34,7 @@ public class Engine {
 					}
 
 					if (command.equals("protover 2")) {
-						bout.write("feature sigint=0 myName=\"bigbrain\" side=1\n".getBytes());
+						bout.write("feature sigint=0 side=1\n".getBytes());
 						bout.flush();
 					}
 
@@ -67,7 +67,6 @@ public class Engine {
 
 							game.opponentMove(command);
 							game.makeMove(bout);
-							game.printGrid();
 						}
 					}
 
@@ -115,6 +114,7 @@ public class Engine {
 			}
 
 		}
-
+		input.close();
+		bout.close();
 	}
 }
