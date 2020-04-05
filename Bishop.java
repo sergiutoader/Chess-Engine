@@ -8,7 +8,8 @@ public class Bishop extends Piece {
 		this.position = position;
 		this.color = color;
 		this.possibleMoves = new ArrayList <String>();
-		this.game = game;		
+		this.game = game;
+		this.score = 3;		
 	}
 
 	public void updatePossibleMoves(boolean side) {

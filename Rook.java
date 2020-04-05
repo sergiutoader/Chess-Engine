@@ -9,7 +9,7 @@ public class Rook extends Piece {
 		this.color = color;
 		this.possibleMoves = new ArrayList <String>();
 		this.game = game;
-
+		this.score = 5;
 	}
 
 	public void updatePossibleMoves(boolean side) {

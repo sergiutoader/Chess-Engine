@@ -8,6 +8,7 @@ public class Empty extends Piece {
 		this.color = color;
 		this.possibleMoves = null;
 		this.game = game;
+		this.score = 0;
 		
 	}
 

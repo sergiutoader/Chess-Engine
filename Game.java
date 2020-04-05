@@ -1,10 +1,21 @@
 import java.io.*;
+import java.util.ArrayList;
+
+class Pair<F, S> {
+    public F first;
+    public S second;
+
+    public Pair(F first, S second) {
+        this.first = first;
+        this.second = second;
+    }
+}
 
 public class Game {
 	public Piece[][] grid;
 
 	public boolean side; // true = white, false = black;
-
+	public ArrayList<String> allMoves;
 	public Piece getPiece(int row, int column) {
 		return this.grid[row][column];
 	}
@@ -53,6 +64,65 @@ public class Game {
 
 	}
 
+	public int eval() {
+		int i, j;
+		int score = 0;
+		for(i = 0; i <= 7; i++) {
+			for(j = 0; j <= 7; j++) {
+				if (!(this.grid[i][j] instanceof Empty) && (this.grid[i][j].color == this.side)) {
+					score += this.grid[i][j].score;
+				} else if (!(this.grid[i][j] instanceof Empty) && (this.grid[i][j].color != this.side)){
+					score -= this.grid[i][j].score;
+				}
+			}
+		}
+		return score;
+	}
+
+	public void updateAllPossibleMoves(Boolean color) {
+		int i, j;
+		allMoves = new ArrayList<String>();
+		for(i = 0; i <= 7; i++) {
+			for(j = 0; j <= 7; j++) {
+				if (!(this.grid[i][j] instanceof Empty) && (this.grid[i][j].color == color)) {
+					this.grid[i][j].updatePossibleMoves(this.side);
+					for(String s : this.grid[i][j].possibleMoves) {
+						allMoves.add(s);
+					}
+				}
+			}
+		}
+	}
+
+	// public Pair <Integer, String> minimax(Game game, Boolean color, int depth) {
+	// 	if(depth == 4) {
+	// 		return new Pair<Integer, String>(game.eval(color), "");
+	// 	}
+
+	// 	updateAllPossibleMoves(color);
+	// 	if(this.allMoves.size() == 0) {
+	// 		// daca nu avem mutari legale, intoarcem un string gol si scor 0
+	// 		return new Pair<Integer, String>(0, "");
+	// 	}
+	// 	int max = -10000;
+	// 	String bestMove = "";
+	// 	for(String move : allMoves) {
+	// 		Piece[][] gridAux = this.clone(grid);
+
+	// 		this.applyMove(grid, move);
+	// 		Pair <Integer, String> p = minimax(game, (!color) , depth + 1);
+
+	// 		if(-p.first > max) {
+	// 			max = -p.first;
+	// 			brestMove = move; 
+	// 		}
+
+	// 		grid = this.clone(grid);
+	// 	} 
+
+	// 	return new Pair<Integer, String>(max, move);
+	// }
+
 	// metoda folosita pentru a interpreta si inregistra pe grid o mutare a oponentului
 	public void opponentMove(String command) {
 		// calculare indicii pentru pozitia anterioara
@@ -89,15 +159,15 @@ public class Game {
 		// se actualizeaza pozitia veche cu empty
 		this.grid[prevRow][prevColumn] = new Empty(getPosition(prevRow, prevColumn), false, this);
 
-		engineEnPasant(prevRow, prevColumn, currRow, currColumn);
+		engineEnPassant(prevRow, prevColumn, currRow, currColumn);
 		opponentEnPassant(prevRow, prevColumn, currRow, currColumn);
-		castling(prevRow, prevColumn, currRow, currColumn);
+		opponentCastling(prevRow, prevColumn, currRow, currColumn);
 	}
 
 	// verifica daca engine-ul poate efectua o mutare de tip en passant si seteaza
 	// campul enPassant al pionului care poate efectua acea mutare cu pozitia pe
 	// care se poate muta
-	private void engineEnPasant(int prevRow, int prevColumn, int currRow, int currColumn) {
+	private void engineEnPassant(int prevRow, int prevColumn, int currRow, int currColumn) {
 
 		if (this.side == false && prevRow == 1 && currRow == 3) {
 			if (currColumn > 0 && this.grid[currRow][currColumn - 1] instanceof Pawn
@@ -168,7 +238,7 @@ public class Game {
 
 	// verifica daca oponentul a efectuat o mutare de tip rocada si actualizeaza
 	// grid-ul
-	private void castling(int prevRow, int prevColumn, int currRow, int currColumn) {
+	private void opponentCastling(int prevRow, int prevColumn, int currRow, int currColumn) {
 		if (this.grid[currRow][currColumn] instanceof King) {
 			// rocada de 2
 			if (currRow == prevRow && currColumn == prevColumn + 2) {
@@ -197,6 +267,7 @@ public class Game {
 			for (j = 0; j < 8; j++) {
 				if (!(this.grid[i][j] instanceof Empty) && (this.grid[i][j].color != this.side)) {
 					this.grid[i][j].updatePossibleMoves(!(this.side));
+
 					for (k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
 						if (this.grid[i][j].possibleMoves.get(k).indexOf(kingPosition) >= 0)
 							return true;
@@ -225,12 +296,12 @@ public class Game {
 			}
 		}
 
-		// verificare daca regele este in sah
-		if (this.isCheck(kingPosition)) {
-			bout.write("resign\n".getBytes());
-			bout.flush();
-			return;
-		}
+		// // verificare daca regele este in sah
+		// if (this.isCheck(kingPosition)) {
+		// 	bout.write("resign\n".getBytes());
+		// 	bout.flush();
+		// 	return;
+		// }
 
 		if (this.side == false) {
 
@@ -241,26 +312,19 @@ public class Game {
 
 						// calculare mutari posibile
 						this.grid[i][j].updatePossibleMoves(this.side);
-
-						if (this.grid[i][j].possibleMoves.size() > 0) {
-							nextPosition = this.grid[i][j].possibleMoves.get(0);
-						}
-
-						if (nextPosition != null) {
-							pawnBlackMove(i, j, kingPosition, nextPosition, bout);
-							return;
-						}
-						
+						for(int k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
+							nextPosition = this.grid[i][j].possibleMoves.get(k);
+							if(pawnBlackMove(i, j, kingPosition, nextPosition, bout)){
+								return;
+							}
+						}						
 					} else if ((this.grid[i][j] instanceof Empty == false) && grid[i][j].color == this.side) {
 
 						// calculare mutari posibile
 						this.grid[i][j].updatePossibleMoves(this.side);
 
-						if (this.grid[i][j].possibleMoves.size() > 0) {
-							nextPosition = this.grid[i][j].possibleMoves.get(0);
-						}
-
-						if (nextPosition != null) {
+						for(int k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
+							nextPosition = this.grid[i][j].possibleMoves.get(k);
 
 							// actualizare grid
 							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
@@ -269,19 +333,32 @@ public class Game {
 
 							// setare camp gol pe pozitia anterioara
 							this.grid[i][j] = new Empty(getPosition(i, j), false, this);
-
-
 							// verificare daca regele este in sah dupa efectuarea mutarii
 							if (this.isCheck(kingPosition)) {
-								bout.write("resign\n".getBytes());
-								bout.flush();
-								return;
+								// actualizare grid
+								this.grid[i][j] = this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)];
+								// actualizare camp pentru pozitie
+								this.grid[i][j].position = this.getPosition(i, j);
+
+								// setare camp gol pe pozitia anterioara
+								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
+								continue;
+							}
+
+							// verificare daca regele a fost mutat in sah
+							if(this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] instanceof King && this.isCheck(nextPosition)) {
+								// refacere grid
+								this.grid[i][j] = this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)];
+								// refacere camp pentru pozitie
+								this.grid[i][j].position = this.getPosition(i, j);
+								// setare camp gol pe pozitia urmatoare
+								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
+								continue;
 							}
 
 							// afisare mutare
 							bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
 							bout.flush();
-
 							return;
 						}
 					}
@@ -296,24 +373,19 @@ public class Game {
 						// calculare mutari posibile
 						this.grid[i][j].updatePossibleMoves(this.side);
 
-						if (this.grid[i][j].possibleMoves.size() > 0) {
-							nextPosition = this.grid[i][j].possibleMoves.get(0);
-						}
-
-						if (nextPosition != null) {
-							pawnWhiteMove(i, j, kingPosition, nextPosition, bout);
-							return;
-						}
+						for(int k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
+							nextPosition = this.grid[i][j].possibleMoves.get(k);
+							if(pawnBlackMove(i, j, kingPosition, nextPosition, bout)){
+								return;
+							}
+						}	
 					} else if ((this.grid[i][j] instanceof Empty == false) && grid[i][j].color == this.side) {
 
 						// calculare mutari posibile
 						this.grid[i][j].updatePossibleMoves(this.side);
 
-						if (this.grid[i][j].possibleMoves.size() > 0) {
-							nextPosition = this.grid[i][j].possibleMoves.get(0);
-						}
-
-						if (nextPosition != null) {
+						for(int k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
+							nextPosition = this.grid[i][j].possibleMoves.get(k);
 
 							// actualizare grid
 							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
@@ -322,18 +394,32 @@ public class Game {
 
 							// setare camp gol pe pozitia anterioara
 							this.grid[i][j] = new Empty(getPosition(i, j), false, this);
-
 							// verificare daca regele este in sah dupa efectuarea mutarii
 							if (this.isCheck(kingPosition)) {
-								bout.write("resign\n".getBytes());
-								bout.flush();
-								return;
+								// actualizare grid
+								this.grid[i][j] = this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)];
+								// actualizare camp pentru pozitie
+								this.grid[i][j].position = this.getPosition(i, j);
+
+								// setare camp gol pe pozitia anterioara
+								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
+								continue;
+							}
+
+							// verificare daca regele a fost mutat in sah
+							if(this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] instanceof King && this.isCheck(nextPosition)) {
+								// refacere grid
+								this.grid[i][j] = this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)];
+								// refacere camp pentru pozitie
+								this.grid[i][j].position = this.getPosition(i, j);
+								// setare camp gol pe pozitia urmatoare
+								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
+								continue;
 							}
 
 							// afisare mutare
 							bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
 							bout.flush();
-
 							return;
 						}
 					}
@@ -346,7 +432,7 @@ public class Game {
 	}
 
 	// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
-	private void pawnWhiteMove(int i, int j, String kingPosition, String nextPosition, BufferedOutputStream bout)
+	private boolean pawnWhiteMove(int i, int j, String kingPosition, String nextPosition, BufferedOutputStream bout)
 			throws IOException {
 		// daca este o mutare de tip en passant, se elimina pionul din spatele
 		// destinatiei
@@ -375,18 +461,23 @@ public class Game {
 
 		// verificare daca regele este in sah dupa efectuarea mutarii
 		if (this.isCheck(kingPosition)) {
-			bout.write("resign\n".getBytes());
-			bout.flush();
-			return;
+			// refacere grid
+			String prevPosition = this.getPosition(i, j);
+			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
+			this.grid[i][j] = new Pawn(prevPosition, true, this);
+			this.grid[i][j].position = prevPosition;
+			return false;
 		}
+
 		
 		// afisare mutare
 		bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
-		bout.flush();		
+		bout.flush();
+		return true;	
 	}
 	
 	// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
-	private void pawnBlackMove(int i, int j, String kingPosition, String nextPosition, BufferedOutputStream bout)
+	private boolean pawnBlackMove(int i, int j, String kingPosition, String nextPosition, BufferedOutputStream bout)
 			throws IOException {
 		// daca este o mutare de tip en passant, se elimina pionul din spatele
 		// destinatiei
@@ -412,14 +503,18 @@ public class Game {
 
 		// verificare daca regele este in sah dupa efectuarea mutarii
 		if (this.isCheck(kingPosition)) {
-			bout.write("resign\n".getBytes());
-			bout.flush();
-			return;
+			// refacere grid
+			String prevPosition = this.getPosition(i, j);
+			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
+			this.grid[i][j] = new Pawn(prevPosition, false, this);
+			this.grid[i][j].position = prevPosition;
+			return false;
 		}
 
 		// afisare mutare
 		bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
 		bout.flush();
+		return true;
 	}
 
 	// intoarce pozitia sub forma de string

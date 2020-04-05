@@ -8,6 +8,7 @@ public abstract class Piece {
 	public boolean color;
 	public ArrayList <String> possibleMoves;
 	public String enPassant = null;
+	public int score;
 	
 	public abstract void updatePossibleMoves(boolean side);
 

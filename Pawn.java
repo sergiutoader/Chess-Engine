@@ -10,6 +10,7 @@ public class Pawn extends Piece {
 		// Pionul poate avea maxim 4 mutari posibile la un moment de timp
 		this.possibleMoves = new ArrayList<String>();
 		this.game = game;
+		this.score = 1;
 
 	}
 

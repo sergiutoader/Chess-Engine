@@ -1,3 +1,28 @@
+Update-uri - etapa 2
+
+update - Andreea, Sergiu, Alin - 04.04
+- adaugare functii eval, updateAllPossibleMoves, minimax
+
+update - Sergiu - 05.04
+- modificare updatePossibleMoves pentru Rege - nu mai verifica daca e in sah cand calculeaza mutarile legale,
+verificarea se va face in alta functie
+- modificare functia makeMove - face "undo" la mutare daca in urma mutarii regele ajunge in sah
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Proiect PA 2020 - Etapa 1
 
 Nume Echipa: Regina si Nebunii
@@ -24,7 +49,7 @@ Structura proiectului
 
 Clasa Engine - contine metoda main, realizeaza interactiunea cu platforma
 xboard, primeste si interpreteaza comenzile venite de la xboard si trimite
-comenzi inapoi
+comenzi inapoi.
 
 Clasa Game - realizeaza reprezentarea interna a tablei de joc prin matricea de
 piese grid, actualizand permanent aceasta matrice dupa mutarea fiecarei piese.
