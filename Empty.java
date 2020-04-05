@@ -15,5 +15,4 @@ public class Empty extends Piece {
 	public void updatePossibleMoves(boolean side) {
 		
 	}
-	
 }

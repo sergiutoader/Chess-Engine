@@ -15,7 +15,7 @@ public class Engine {
 		boolean sideAfterForce = true;
 
 		Scanner input = new Scanner(System.in);
-
+		String prevSide = "";
 		BufferedOutputStream bout = new BufferedOutputStream(System.out);
 
 		while (true) {
@@ -49,7 +49,6 @@ public class Engine {
 
 					if (command.equals("white")) {
 						game.side = true;
-						game.makeMove(bout);
 					}
 
 					if (command.equals("quit")) {
@@ -59,6 +58,10 @@ public class Engine {
 
 					if (command.equals("force")) {
 						pause = 1;
+					}
+
+					if(command.equals("go")) {
+						game.makeMove(bout);
 					}
 
 					if (command.length() == 4 || command.length() == 5) {
@@ -94,6 +97,7 @@ public class Engine {
 					// aceasta variabila pentru a intra in joc
 					// pe partea opusa la urmatoarea comanda force
 					if (command.equals("go")) {
+
 						pause = 0;
 						game.side = sideAfterForce;
 						sideAfterForce = !sideAfterForce;

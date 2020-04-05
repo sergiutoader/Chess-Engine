@@ -25,29 +25,30 @@ public class King extends Piece {
 		game = this.game;
 
 		if (row > 0 && game.freeSpace(row - 1, column, side)) {
-			this.possibleMoves.add(game.getPosition(row - 1, column));
+			this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(row - 1, column));
 
 		}
 		if (row < 7 && game.freeSpace(row + 1, column, side)) {
-			this.possibleMoves.add(game.getPosition(row + 1, column));
+			this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(row + 1, column));
 		}
 		if (column > 0 && game.freeSpace(row, column - 1, side)) {
-			this.possibleMoves.add(game.getPosition(row, column - 1));
+			this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(row, column - 1));
 		}
 		if (column < 7 && game.freeSpace(row, column + 1, side)) {
-			this.possibleMoves.add(game.getPosition(row, column + 1));
+			this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(row, column + 1));
 		}
 		if (row > 0 && column > 0 && game.freeSpace(row - 1, column - 1, side)) {
-			this.possibleMoves.add(game.getPosition(row - 1, column - 1));
+			this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(row - 1, column - 1));
 		}
 		if (row > 0 && column < 7 && game.freeSpace(row - 1, column + 1, side)) {
-			this.possibleMoves.add(game.getPosition(row - 1, column + 1));
+			this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(row - 1, column + 1));
 		}
 		if (row < 7 && column > 0 && game.freeSpace(row + 1, column - 1, side)) {
-			this.possibleMoves.add(game.getPosition(row + 1, column - 1));
+			this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(row + 1, column - 1));
 		}
 		if (row < 7 && column < 7 && game.freeSpace(row + 1, column + 1, side)) {
-			this.possibleMoves.add(game.getPosition(row + 1, column + 1));
+			this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(row + 1, column + 1));
 		}
 	}
+
 }

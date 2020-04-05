@@ -32,7 +32,7 @@ public class Rook extends Piece {
 			
 			if(i < 0 || i > 7 || j < 0 || j > 7)break;
 			
-			if(game.freeSpace(i, j, this.color) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(game.freeSpace(i, j, this.color) )this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if(!(game.getPiece(i, j) instanceof Empty) )break;
 		}
 		
@@ -44,7 +44,7 @@ public class Rook extends Piece {
 			
 			if(i < 0 || i > 7 || j < 0 || j > 7)break;
 			
-			if(game.freeSpace(i, j, this.color) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(game.freeSpace(i, j, this.color) )this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j) );
 			if(!(game.getPiece(i, j) instanceof Empty) )break;
 		}
 				
@@ -56,7 +56,7 @@ public class Rook extends Piece {
 			
 			if(i < 0 || i > 7 || j < 0 || j > 7)break;
 			
-			if(game.freeSpace(i, j, this.color) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(game.freeSpace(i, j, this.color) )this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j) );
 			if(!(game.getPiece(i, j) instanceof Empty) )break;
 		}
 		
@@ -68,7 +68,7 @@ public class Rook extends Piece {
 			
 			if(i < 0 || i > 7 || j < 0 || j > 7)break;
 			
-			if(game.freeSpace(i, j, this.color) )this.possibleMoves.add(game.getPosition(i, j) );
+			if(game.freeSpace(i, j, this.color) )this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j) );
 			if(!(game.getPiece(i, j) instanceof Empty) )break;
 		}
 	}

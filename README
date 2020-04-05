@@ -4,10 +4,17 @@ update - Andreea, Sergiu, Alin - 04.04
 - adaugare functii eval, updateAllPossibleMoves, minimax
 
 update - Sergiu - 05.04
-- modificare updatePossibleMoves pentru Rege - nu mai verifica daca e in sah cand calculeaza mutarile legale,
-verificarea se va face in alta functie
-- modificare functia makeMove - face "undo" la mutare daca in urma mutarii regele ajunge in sah
-
+- modificare updatePossibleMoves pentru Rege - nu mai verifica daca e in sah
+	cand calculeaza mutarile legale, verificarea se va face in alta functie
+- modificare functia makeMove - face "undo" la mutare daca in urma mutarii
+	regele ajunge in sah
+- modificarea functiilor de updatePossibleMoves ca sa adauge in lista de mutari
+	posibile un string care include si sursa si destinatia (de forma e2e4,
+	inainte includea doar destinatia)
+- introducerea unei liste allPossibleMoves in clasa Game care sa retina toate
+	mutarile legale ale engine-ului dintr-o stare
+- modificari makeMove - modularizare + ia mutarile din allPossibleMoves acum
+- bugfix in main (se bloca cateodata cand schimbam partea pe care joaca bot-ul)
 
 
 

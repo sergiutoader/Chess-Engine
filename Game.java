@@ -79,21 +79,6 @@ public class Game {
 		return score;
 	}
 
-	public void updateAllPossibleMoves(Boolean color) {
-		int i, j;
-		allMoves = new ArrayList<String>();
-		for(i = 0; i <= 7; i++) {
-			for(j = 0; j <= 7; j++) {
-				if (!(this.grid[i][j] instanceof Empty) && (this.grid[i][j].color == color)) {
-					this.grid[i][j].updatePossibleMoves(this.side);
-					for(String s : this.grid[i][j].possibleMoves) {
-						allMoves.add(s);
-					}
-				}
-			}
-		}
-	}
-
 	// public Pair <Integer, String> minimax(Game game, Boolean color, int depth) {
 	// 	if(depth == 4) {
 	// 		return new Pair<Integer, String>(game.eval(color), "");
@@ -258,6 +243,19 @@ public class Game {
 
 	}
 
+	// metoda care intoarce pozitia
+	public String getKingPosition(Piece[][] grid, Boolean color) {
+		for(int i = 0; i < 8; i++) {
+			for(int j = 0; j < 8; j++) {
+				if(grid[i][j] instanceof King && grid[i][j].color == color) {
+					return this.getPosition(i, j);
+				}
+			}
+		}
+		return null;
+	}
+
+
 	// verifica daca regele engine-ului se afla in sah
 	public boolean isCheck(String kingPosition) {
 
@@ -278,157 +276,86 @@ public class Game {
 		return false;
 	}
 
-	// metoda care trimite xboard-ului o mutare legala sau da resign daca nu mai sunt mutari legale
-	// sunt implementate mutari pentru pion, tura, nebun, cal, regina
-	public void makeMove(BufferedOutputStream bout) throws IOException {
 
+	// intorce o lista de mutari complete (care contin atat sursa cat si destinatia)
+	public ArrayList<String> updateAllPossibleMoves(Piece[][] grid, Boolean color) {
 		int i, j;
-		String kingPosition = null;
-		String nextPosition = null;
-
-		// calcul pozitie rege
-		for (i = 0; i < 8; i++) {
-			for (j = 0; j < 8; j++) {
-				if (this.grid[i][j] instanceof King && this.grid[i][j].color == this.side) {
-					kingPosition = this.grid[i][j].position;
-					break;
-				}
-			}
-		}
-
-		// // verificare daca regele este in sah
-		// if (this.isCheck(kingPosition)) {
-		// 	bout.write("resign\n".getBytes());
-		// 	bout.flush();
-		// 	return;
-		// }
-
-		if (this.side == false) {
-
-			for (i = 0; i < 8; i++) {
-				for (j = 0; j < 8; j++) {
-
-					if (this.grid[i][j] instanceof Pawn && grid[i][j].color == this.side) {
-
-						// calculare mutari posibile
-						this.grid[i][j].updatePossibleMoves(this.side);
-						for(int k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
-							nextPosition = this.grid[i][j].possibleMoves.get(k);
-							if(pawnBlackMove(i, j, kingPosition, nextPosition, bout)){
-								return;
-							}
-						}						
-					} else if ((this.grid[i][j] instanceof Empty == false) && grid[i][j].color == this.side) {
-
-						// calculare mutari posibile
-						this.grid[i][j].updatePossibleMoves(this.side);
-
-						for(int k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
-							nextPosition = this.grid[i][j].possibleMoves.get(k);
-
-							// actualizare grid
-							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
-							// actualizare camp pentru pozitie
-							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)].position = nextPosition;
-
-							// setare camp gol pe pozitia anterioara
-							this.grid[i][j] = new Empty(getPosition(i, j), false, this);
-							// verificare daca regele este in sah dupa efectuarea mutarii
-							if (this.isCheck(kingPosition)) {
-								// actualizare grid
-								this.grid[i][j] = this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)];
-								// actualizare camp pentru pozitie
-								this.grid[i][j].position = this.getPosition(i, j);
-
-								// setare camp gol pe pozitia anterioara
-								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
-								continue;
-							}
-
-							// verificare daca regele a fost mutat in sah
-							if(this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] instanceof King && this.isCheck(nextPosition)) {
-								// refacere grid
-								this.grid[i][j] = this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)];
-								// refacere camp pentru pozitie
-								this.grid[i][j].position = this.getPosition(i, j);
-								// setare camp gol pe pozitia urmatoare
-								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
-								continue;
-							}
-
-							// afisare mutare
-							bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
-							bout.flush();
-							return;
-						}
-					}
-				}
-			}
-		} else {
-			for (i = 7; i >= 0; i--) {
-				for (j = 7; j >= 0; j--) {
-
-					if (this.grid[i][j] instanceof Pawn && this.grid[i][j].color == this.side) {
-
-						// calculare mutari posibile
-						this.grid[i][j].updatePossibleMoves(this.side);
-
-						for(int k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
-							nextPosition = this.grid[i][j].possibleMoves.get(k);
-							if(pawnBlackMove(i, j, kingPosition, nextPosition, bout)){
-								return;
-							}
-						}	
-					} else if ((this.grid[i][j] instanceof Empty == false) && grid[i][j].color == this.side) {
-
-						// calculare mutari posibile
-						this.grid[i][j].updatePossibleMoves(this.side);
-
-						for(int k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
-							nextPosition = this.grid[i][j].possibleMoves.get(k);
-
-							// actualizare grid
-							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
-							// actualizare camp pentru pozitie
-							this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)].position = nextPosition;
-
-							// setare camp gol pe pozitia anterioara
-							this.grid[i][j] = new Empty(getPosition(i, j), false, this);
-							// verificare daca regele este in sah dupa efectuarea mutarii
-							if (this.isCheck(kingPosition)) {
-								// actualizare grid
-								this.grid[i][j] = this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)];
-								// actualizare camp pentru pozitie
-								this.grid[i][j].position = this.getPosition(i, j);
-
-								// setare camp gol pe pozitia anterioara
-								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
-								continue;
-							}
-
-							// verificare daca regele a fost mutat in sah
-							if(this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] instanceof King && this.isCheck(nextPosition)) {
-								// refacere grid
-								this.grid[i][j] = this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)];
-								// refacere camp pentru pozitie
-								this.grid[i][j].position = this.getPosition(i, j);
-								// setare camp gol pe pozitia urmatoare
-								this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Empty(nextPosition, false, this);
-								continue;
-							}
-
-							// afisare mutare
-							bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
-							bout.flush();
-							return;
-						}
+		allMoves = new ArrayList<String>();
+		for(i = 0; i <= 7; i++) {
+			for(j = 0; j <= 7; j++) {
+				if (!(grid[i][j] instanceof Empty) && (grid[i][j].color == color)) {
+					grid[i][j].updatePossibleMoves2(color);
+					for(String s : grid[i][j].possibleMoves) {
+						allMoves.add(s);
 					}
 				}
 			}
 		}
-		// se face resign daca nu se poate executa nicio mutare
-		bout.write("resign\n".getBytes());
-		bout.flush();
+		return allMoves;
+	}
+
+	public void makeMove(BufferedOutputStream bout) throws IOException  {
+
+		String kingPosition = this.getKingPosition(this.grid, this.side);
+		ArrayList <String> allMoves = updateAllPossibleMoves(this.grid, this.side);
+		this.printGrid();
+		for(String move : allMoves) {
+			int i = getRow(move.substring(0, 2));
+			int j = getColumn(move.substring(0, 2));
+
+			String nextPosition = move.substring(2);
+			int nextRow = getRow(nextPosition);
+			int nextColumn = getColumn(nextPosition);
+
+			// Mutare pion
+			if (this.grid[i][j] instanceof Pawn && this.grid[i][j].color == this.side) {
+				if(this.side == false) {
+					if(pawnBlackMove(i, j, kingPosition, nextPosition, bout)){
+						return;
+					}
+				} else {
+					if(pawnWhiteMove(i, j, kingPosition, nextPosition, bout)){
+						return;
+					}
+				}
+			} else if (!(this.grid[i][j] instanceof Empty) && this.grid[i][j].color == this.side) {
+				// actualizare grid
+				this.grid[nextRow][nextColumn] = this.grid[i][j];
+				// actualizare camp pentru pozitie
+				this.grid[nextRow][nextColumn].position = nextPosition;
+
+				// setare camp gol pe pozitia anterioara
+				this.grid[i][j] = new Empty(getPosition(i, j), false, this);
+							
+				// verificare daca regele a fost mutat in sah
+				if(this.grid[nextRow][nextColumn] instanceof King && this.isCheck(nextPosition)) {
+					// refacere grid
+					this.grid[i][j] = this.grid[nextRow][nextColumn];
+					// refacere camp pentru pozitie
+					this.grid[i][j].position = this.getPosition(i, j);
+					// setare camp gol pe pozitia urmatoare
+					this.grid[nextColumn][nextColumn] = new Empty(nextPosition, false, this);
+					continue;
+				}
+
+				// verificare daca regele este in sah dupa efectuarea mutarii
+				if (this.isCheck(kingPosition)) {
+					// actualizare grid
+					this.grid[i][j] = this.grid[nextRow][nextColumn];
+					// actualizare camp pentru pozitie
+					this.grid[i][j].position = this.getPosition(i, j);
+
+					// setare camp gol pe pozitia anterioara
+					this.grid[nextRow][nextColumn] = new Empty(nextPosition, false, this);
+					continue;
+				}
+
+				// afisare mutare
+				bout.write(String.format("move " + move + "\n").getBytes());
+				bout.flush();
+				return;
+			}
+		}
 	}
 
 	// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
@@ -549,6 +476,7 @@ public class Game {
 	public void printGrid() throws FileNotFoundException {
 		StringBuilder gridb = new StringBuilder();
 		PrintWriter wr = new PrintWriter(new File("grid.txt"));
+
 		for (int i = 7; i >= 0; i--) {
 			for (int j = 0; j < 8; j++) {
 				if (grid[i][j] instanceof Empty) {

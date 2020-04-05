@@ -36,7 +36,7 @@ public class Queen extends Piece {
 				break;
 
 			if (game.freeSpace(i, j, this.color))
-				this.possibleMoves.add(game.getPosition(i, j));
+				this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if (!(game.getPiece(i, j) instanceof Empty))
 				break;
 		}
@@ -52,7 +52,7 @@ public class Queen extends Piece {
 				break;
 
 			if (game.freeSpace(i, j, this.color))
-				this.possibleMoves.add(game.getPosition(i, j));
+				this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if (!(game.getPiece(i, j) instanceof Empty))
 				break;
 		}
@@ -68,7 +68,7 @@ public class Queen extends Piece {
 				break;
 
 			if (game.freeSpace(i, j, this.color))
-				this.possibleMoves.add(game.getPosition(i, j));
+				this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if (!(game.getPiece(i, j) instanceof Empty))
 				break;
 		}
@@ -84,7 +84,7 @@ public class Queen extends Piece {
 				break;
 
 			if (game.freeSpace(i, j, this.color))
-				this.possibleMoves.add(game.getPosition(i, j));
+				this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if (!(game.getPiece(i, j) instanceof Empty))
 				break;
 		}
@@ -99,7 +99,7 @@ public class Queen extends Piece {
 				break;
 
 			if (game.freeSpace(i, j, this.color))
-				this.possibleMoves.add(game.getPosition(i, j));
+				this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if (!(game.getPiece(i, j) instanceof Empty))
 				break;
 		}
@@ -114,7 +114,7 @@ public class Queen extends Piece {
 				break;
 
 			if (game.freeSpace(i, j, this.color))
-				this.possibleMoves.add(game.getPosition(i, j));
+				this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if (!(game.getPiece(i, j) instanceof Empty))
 				break;
 		}
@@ -129,7 +129,7 @@ public class Queen extends Piece {
 				break;
 
 			if (game.freeSpace(i, j, this.color))
-				this.possibleMoves.add(game.getPosition(i, j));
+				this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if (!(game.getPiece(i, j) instanceof Empty))
 				break;
 		}
@@ -144,7 +144,7 @@ public class Queen extends Piece {
 				break;
 
 			if (game.freeSpace(i, j, this.color))
-				this.possibleMoves.add(game.getPosition(i, j));
+				this.possibleMoves.add(game.getPosition(row, column) + game.getPosition(i, j));
 			if (!(game.getPiece(i, j) instanceof Empty))
 				break;
 		}

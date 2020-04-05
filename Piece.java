@@ -11,7 +11,6 @@ public abstract class Piece {
 	public int score;
 	
 	public abstract void updatePossibleMoves(boolean side);
-
 	protected int getRow(){
 		return position.charAt(1) - '0' - 1;
 	}
