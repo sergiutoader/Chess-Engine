@@ -64,49 +64,20 @@ public class Game {
 
 	}
 
-	public int eval() {
+	public int eval(Piece[][] grid, Boolean side) {
 		int i, j;
 		int score = 0;
 		for(i = 0; i <= 7; i++) {
 			for(j = 0; j <= 7; j++) {
-				if (!(this.grid[i][j] instanceof Empty) && (this.grid[i][j].color == this.side)) {
-					score += this.grid[i][j].score;
-				} else if (!(this.grid[i][j] instanceof Empty) && (this.grid[i][j].color != this.side)){
-					score -= this.grid[i][j].score;
+				if (!(grid[i][j] instanceof Empty) && (grid[i][j].color == side)) {
+					score += grid[i][j].score;
+				} else if (!(grid[i][j] instanceof Empty) && (grid[i][j].color != side)){
+					score -= grid[i][j].score;
 				}
 			}
 		}
 		return score;
 	}
-
-	// public Pair <Integer, String> minimax(Game game, Boolean color, int depth) {
-	// 	if(depth == 4) {
-	// 		return new Pair<Integer, String>(game.eval(color), "");
-	// 	}
-
-	// 	updateAllPossibleMoves(color);
-	// 	if(this.allMoves.size() == 0) {
-	// 		// daca nu avem mutari legale, intoarcem un string gol si scor 0
-	// 		return new Pair<Integer, String>(0, "");
-	// 	}
-	// 	int max = -10000;
-	// 	String bestMove = "";
-	// 	for(String move : allMoves) {
-	// 		Piece[][] gridAux = this.clone(grid);
-
-	// 		this.applyMove(grid, move);
-	// 		Pair <Integer, String> p = minimax(game, (!color) , depth + 1);
-
-	// 		if(-p.first > max) {
-	// 			max = -p.first;
-	// 			brestMove = move; 
-	// 		}
-
-	// 		grid = this.clone(grid);
-	// 	} 
-
-	// 	return new Pair<Integer, String>(max, move);
-	// }
 
 	// metoda folosita pentru a interpreta si inregistra pe grid o mutare a oponentului
 	public void opponentMove(String command) {
@@ -294,6 +265,88 @@ public class Game {
 		return allMoves;
 	}
 
+
+	// minimax simplu pentru calculul celei mai bune mutari
+	public Pair <Integer, String> minimax(Piece[][] grid, Boolean color, int depth) {
+		if(depth == 0) {
+			return new Pair<Integer, String>(this.eval(grid, color), "");
+		}
+
+		this.updateAllPossibleMoves(grid, color);
+		System.out.println(this.allMoves + " " + color + " " + depth + " " + eval(grid, color));
+		if(this.allMoves.size() == 0) {
+			// daca nu avem mutari legale, intoarcem un string gol si scor 0
+			return new Pair<Integer, String>(-10000, "");
+		}
+		int max = -10000;
+		String bestMove = "";
+		for(String move : this.allMoves) {
+			// grid auxiliar folosit pentru a retine grid-ul
+			Piece[][] gridAux = this.cloneGrid(grid);
+
+			gridAux = this.applyMove(gridAux, move);
+
+			// if(this.eval(gridAux, color) != 0 && depth == 3)
+			// System.out.println(move + " " + this.eval(gridAux, color) + " depth = " + depth);
+
+			Pair <Integer, String> p = minimax(gridAux, (!color) , depth - 1);
+
+			if(-p.first > max) {
+				max = -p.first;
+				bestMove = move; 
+			}
+		} 
+
+		return new Pair<Integer, String>(max, bestMove);
+	}
+
+
+	// metoda care actualizeaza grid-ul in urma unei mutari
+	Piece[][] applyMove(Piece[][] grid, String move) {
+		Piece[][] newGrid = this.cloneGrid(grid);
+
+		int i = getRow(move.substring(0, 2));
+		int j = getColumn(move.substring(0, 2));
+
+		String nextPosition = move.substring(2);
+		int nextRow = getRow(nextPosition);
+		int nextColumn = getColumn(nextPosition);
+		
+		// if (grid[i][j] instanceof Pawn && grid[i][j].color == side) {
+		// 		if(this.side == false) {
+		// 			if(pawnBlackMove(i, j, kingPosition, nextPosition, bout)){
+		// 				return;
+		// 			}
+		// 		} else {
+		// 			if(pawnWhiteMove(i, j, kingPosition, nextPosition, bout)){
+		// 				return;
+		// 			}
+		// 		}
+		// }
+
+		newGrid[nextRow][nextColumn] = grid[i][j];	
+		newGrid[nextRow][nextColumn].position = this.getPosition(nextRow, nextColumn);
+
+		newGrid[i][j] = new Empty(getPosition(i, j), false, this);
+		return newGrid;
+	}
+
+	public void makeMove2(BufferedOutputStream bout) throws IOException {
+		Pair <Integer, String> pair = minimax(this.grid, this.side, 3);
+		String move = pair.second;
+		if(move.equals("")) {
+			bout.write(String.format("resign\n").getBytes());
+			bout.flush();
+			return;
+		}
+		
+		this.grid = applyMove(this.grid, move);
+		this.printGrid();
+		// afisare mutare
+		bout.write(String.format("move " + move + "\n").getBytes());
+		bout.flush();
+	}
+
 	public void makeMove(BufferedOutputStream bout) throws IOException  {
 
 		String kingPosition = this.getKingPosition(this.grid, this.side);
@@ -355,7 +408,6 @@ public class Game {
 				// afisare mutare
 				bout.write(String.format("move " + move + "\n").getBytes());
 				bout.flush();
-				this.printGrid();
 				return;
 			}
 		}
@@ -408,6 +460,7 @@ public class Game {
 		// afisare mutare
 		bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
 		bout.flush();
+		this.printGrid();
 		return true;	
 	}
 	
@@ -508,13 +561,23 @@ public class Game {
 		return new Empty(p.position, p.color, p.game);
 	}
 
+	public Piece[][] cloneGrid(Piece [][] grid) {
+		Piece[][] newGrid = new Piece[8][8];
+		for(int i = 0; i <= 7; i++) {
+			for(int j = 0; j <= 7; j++) {
+				newGrid[i][j] = clonePiece(grid[i][j]);
+			}
+		}
+		return newGrid;
+	}
+
 	// metoda folosita pentru debug - afiseaza in fisierul grid.txt grid-ul
 	// daca fisierul e deschis cu sublime, se va actualiza dupa fiecare mutare
 	// a engine-ului
 	public void printGrid() throws FileNotFoundException {
 		StringBuilder gridb = new StringBuilder();
 		PrintWriter wr = new PrintWriter(new File("grid.txt"));
-
+		wr.append("Engine evaluates to " + this.eval(this.grid, this.side) + "\n");
 		for (int i = 7; i >= 0; i--) {
 			for (int j = 0; j < 8; j++) {
 				if (grid[i][j] instanceof Empty) {

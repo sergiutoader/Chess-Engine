@@ -61,7 +61,7 @@ public class Engine {
 					}
 
 					if(command.equals("go")) {
-						game.makeMove(bout);
+						game.makeMove2(bout);
 					}
 
 					if (command.length() == 4 || command.length() == 5) {
@@ -69,7 +69,7 @@ public class Engine {
 								&& Character.isDigit(command.charAt(1)) && Character.isDigit(command.charAt(3))) {
 
 							game.opponentMove(command);
-							game.makeMove(bout);
+							game.makeMove2(bout);
 						}
 					}
 
@@ -101,7 +101,7 @@ public class Engine {
 						pause = 0;
 						game.side = sideAfterForce;
 						sideAfterForce = !sideAfterForce;
-						game.makeMove(bout);
+						game.makeMove2(bout);
 
 					// in cazul comenzii "new", engine-ul joaca cu negru
 					} else if (command.equals("new")) {
