@@ -64,7 +64,8 @@ public class Game {
 
 	}
 
-	public int eval(Piece[][] grid, Boolean side) {
+	// Functia de evaluare a grid-ului
+	public int eval() {
 		int i, j;
 		int score = 0;
 		for(i = 0; i <= 7; i++) {
@@ -79,153 +80,168 @@ public class Game {
 		return score;
 	}
 
-	// metoda folosita pentru a interpreta si inregistra pe grid o mutare a oponentului
-	public void opponentMove(String command) {
-		// calculare indicii pentru pozitia anterioara
-		// si curenta in functie de stringul command
-		int prevRow = getRow(command.substring(0, 2));
-		int prevColumn = getColumn(command.substring(0, 2));
-		int currRow = getRow(command.substring(2));
-		int currColumn = getColumn(command.substring(2));
 
-		// daca comanda are dimensiune 5, oponentul a ajuns cu pionul in baza
-		// engine-ului si a schimbat pionul in alta piesa
-		// se inregistreaza pe gridboard aceasta modificare
-		if (command.length() == 5) {
-			this.grid[currRow][currColumn] = null;
-			switch (command.charAt(4)) {
-			case 'q':
-				this.grid[currRow][currColumn] = new Queen(getPosition(currRow, currColumn), !(this.side), this);
-				break;
-			case 'r':
-				this.grid[currRow][currColumn] = new Rook(getPosition(currRow, currColumn), !(this.side), this);
-				break;
-			case 'b':
-				this.grid[currRow][currColumn] = new Bishop(getPosition(currRow, currColumn), !(this.side), this);
-				break;
-			case 'n':
-				this.grid[currRow][currColumn] = new Knight(getPosition(currRow, currColumn), !(this.side), this);
-				break;
+	// intorce o lista de mutari complete (care contin atat sursa cat si destinatia)
+	public ArrayList<String> updateAllPossibleMoves() {
+		int i, j;
+		allMoves = new ArrayList<String>();
+		for(i = 0; i <= 7; i++) {
+			for(j = 0; j <= 7; j++) {
+				if (!(grid[i][j] instanceof Empty) && (grid[i][j].color == this.side)) {
+					grid[i][j].updatePossibleMoves(this.side);
+					for(String s : grid[i][j].possibleMoves) {
+						allMoves.add(s);
+					}
+				}
 			}
+		}
+		return allMoves;
+	}
+
+	// Algoritm minimax
+	public Pair <Integer, String> minimax(Game game, int depth) {
+		if(depth == -1) {
+			return new Pair<Integer, String>(game.eval(), "");
+		}
+
+		game.updateAllPossibleMoves();
+
+		if(game.allMoves.isEmpty()) {
+			return new Pair<Integer, String>(-10000, "");
+		}
+
+		int bestScore = -10000;
+		String bestMove = "";
+
+		for(String move : game.allMoves) {
+			Game copy = game.cloneGame();
+			copy.applyMove(move);
+
+			int score = -minimax(copy, depth - 1).first;
+
+			if(score > bestScore) {
+				bestScore = score;
+				bestMove = move; 
+			}
+		}
+
+		return new Pair <Integer, String> (bestScore, bestMove);
+	}
+
+	// metoda care actualizeaza grid-ul in urma unei mutari
+	public void applyMove(String move) {
+
+		int i = getRow(move.substring(0, 2));
+		int j = getColumn(move.substring(0, 2));
+		String nextPosition = move.substring(2);
+		int nextRow = getRow(nextPosition);
+		int nextColumn = getColumn(nextPosition);
+
+		if (this.grid[i][j] instanceof Pawn && this.grid[i][j].color == this.side) {
+			if(this.side == false) {
+				pawnBlackMove(move);
+					
+			} else {
+				pawnWhiteMove(move);
+			}
+		}
+		else {
+			grid[nextRow][nextColumn] = grid[i][j];	
+			grid[nextRow][nextColumn].position = this.getPosition(nextRow, nextColumn);
+
+			grid[i][j] = new Empty(getPosition(i, j), false, this);
+		}	
+
+	}
+
+	// Functie care trimite o comanda la xboard in functie de ce intoarce algoritmul minimax
+	public void makeMove(BufferedOutputStream bout) throws IOException {
+
+		Pair <Integer, String> pair = minimax(this, 3);
+		String move = pair.second;
+
+		if(move.equals("")) {
+			bout.write(String.format("resign\n").getBytes());
+			bout.flush();
+			return;
+		}
+		
+		applyMove(move);
+
+		// afisare mutare
+		bout.write(String.format("move " + move + "\n").getBytes());
+		bout.flush();
+	}
+
+	// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
+	private void pawnWhiteMove(String move) {
+
+		int i = getRow(move.substring(0, 2));
+		int j = getColumn(move.substring(0, 2));
+
+		String nextPosition = move.substring(2);
+		int nextRow = getRow(nextPosition);
+		int nextColumn = getColumn(nextPosition);
+
+		// daca este o mutare de tip en passant, se elimina pionul din spatele
+		// destinatiei
+		if (this.grid[i][j].enPassant != null) {
+			int row = this.getRow(nextPosition) - 1;
+			int column = this.getColumn(nextPosition);
+			this.grid[row][column] = new Empty(this.getPosition(row, column), false, this);
+			// se reseteaza campul pentru pionul mutat
+			this.grid[i][j].enPassant = null;
+		}
+
+		// daca pionul ajunge in baza oponentului, se transforma in regina
+		if (this.grid[i][j] instanceof Pawn && nextRow == 7) {
+			this.grid[nextRow][nextColumn] = new Queen(
+					nextPosition, true, this);
 		} else {
-			// se pune piesa de pe pozitia anterioara pe pozitia actuala
-			this.grid[currRow][currColumn] = this.grid[prevRow][prevColumn];
-			this.grid[currRow][currColumn].position = command.substring(2);
+			// actualizare grid
+			this.grid[nextRow][nextColumn] = this.grid[i][j];
+			// actualizare camp pentru pozitie
+			this.grid[nextRow][nextColumn].position = nextPosition;
 		}
-		// se actualizeaza pozitia veche cu empty
-		this.grid[prevRow][prevColumn] = new Empty(getPosition(prevRow, prevColumn), false, this);
 
-		engineEnPassant(prevRow, prevColumn, currRow, currColumn);
-		opponentEnPassant(prevRow, prevColumn, currRow, currColumn);
-		opponentCastling(prevRow, prevColumn, currRow, currColumn);
-	}
-
-	// verifica daca engine-ul poate efectua o mutare de tip en passant si seteaza
-	// campul enPassant al pionului care poate efectua acea mutare cu pozitia pe
-	// care se poate muta
-	private void engineEnPassant(int prevRow, int prevColumn, int currRow, int currColumn) {
-
-		if (this.side == false && prevRow == 1 && currRow == 3) {
-			if (currColumn > 0 && this.grid[currRow][currColumn - 1] instanceof Pawn
-					&& this.grid[currRow][currColumn - 1].color == false) {
-				this.grid[currRow][currColumn - 1].enPassant = this.getPosition(currRow - 1, currColumn);
-			}
-			if (currColumn < 7 && this.grid[currRow][currColumn + 1] instanceof Pawn
-					&& this.grid[currRow][currColumn + 1].color == false) {
-				this.grid[currRow][currColumn + 1].enPassant = this.getPosition(currRow - 1, currColumn);
-			}
-		} else if (this.side == true && prevRow == 6 && currRow == 4) {
-			if (currColumn > 0 && this.grid[currRow][currColumn - 1] instanceof Pawn
-					&& this.grid[currRow][currColumn - 1].color == true) {
-				this.grid[currRow][currColumn - 1].enPassant = this.getPosition(currRow + 1, currColumn);
-			}
-			if (currColumn < 7 && this.grid[currRow][currColumn + 1] instanceof Pawn
-					&& this.grid[currRow][currColumn + 1].color == true) {
-				this.grid[currRow][currColumn + 1].enPassant = this.getPosition(currRow + 1, currColumn);
-			}
-		}
-	}
-
-	// verifica daca oponentul a efectuat o mutare de tip en passant si actualizeaza
-	// grid-ul
-	private void opponentEnPassant(int prevRow, int prevColumn, int currRow, int currColumn) {
-
-		if (this.grid[currRow][currColumn] instanceof Pawn) {
-			// conditii (negru): linia curenta 5, mutare pion alb pe diagonala stanga sau
-			// dreapta, pion negru aflat cu o pozitie in spate fata de pozitia curenta
-			if (this.side == false) {
-				if (prevRow == 4 && currRow == 5) {
-					if (prevColumn == currColumn + 1) {
-						if ((this.grid[currRow - 1][currColumn] instanceof Pawn)
-								&& (this.grid[currRow - 1][currColumn].color == false)) {
-							this.grid[currRow - 1][currColumn] = new Empty(getPosition(currRow - 1, currColumn), false,
-									this);
-						}
-					} else if (prevColumn == currColumn - 1) {
-						if ((this.grid[currRow - 1][currColumn] instanceof Pawn)
-								&& (this.grid[currRow - 1][currColumn].color == false)) {
-							this.grid[currRow - 1][currColumn] = new Empty(getPosition(currRow - 1, currColumn), false,
-									this);
-						}
-					}
-				}
-			}
-			// conditii (alb): linia curenta 2, mutare pion negru pe diagonala stanga sau
-			// dreapta, pion alb aflat cu o pozitie in spate fata de pozitia curenta
-			else {
-				if (prevRow == 3 && currRow == 2) {
-					if (prevColumn == currColumn + 1) {
-						if ((this.grid[currRow + 1][currColumn] instanceof Pawn)
-								&& (this.grid[currRow + 1][currColumn].color == true)) {
-							this.grid[currRow + 1][currColumn] = new Empty(getPosition(currRow + 1, currColumn), false,
-									this);
-						}
-					} else if (prevColumn == currColumn - 1) {
-						if ((this.grid[currRow + 1][currColumn] instanceof Pawn)
-								&& (this.grid[currRow + 1][currColumn].color == true)) {
-							this.grid[currRow + 1][currColumn] = new Empty(getPosition(currRow + 1, currColumn), false,
-									this);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// verifica daca oponentul a efectuat o mutare de tip rocada si actualizeaza
-	// grid-ul
-	private void opponentCastling(int prevRow, int prevColumn, int currRow, int currColumn) {
-		if (this.grid[currRow][currColumn] instanceof King) {
-			// rocada de 2
-			if (currRow == prevRow && currColumn == prevColumn + 2) {
-				this.grid[currRow][currColumn - 1] = this.grid[currRow][7];
-				this.grid[currRow][currColumn - 1].position = getPosition(currRow, currColumn - 1);
-
-				this.grid[currRow][7] = new Empty(getPosition(currRow, 7), false, this);
-			}
-			// rocada de 3
-			else if (currRow == prevRow && currColumn == prevColumn - 2) {
-				this.grid[currRow][currColumn + 1] = this.grid[currRow][0];
-				this.grid[currRow][currColumn + 1].position = getPosition(currRow, currColumn + 1);
-
-				this.grid[currRow][0] = new Empty(getPosition(currRow, 0), false, this);
-			}
-		}
+		// setare camp gol pe pozitia anterioara
+		this.grid[i][j] = new Empty(getPosition(i, j), false, this);
 
 	}
 
-	// metoda care intoarce pozitia
-	public String getKingPosition(Piece[][] grid, Boolean color) {
-		for(int i = 0; i < 8; i++) {
-			for(int j = 0; j < 8; j++) {
-				if(grid[i][j] instanceof King && grid[i][j].color == color) {
-					return this.getPosition(i, j);
-				}
-			}
-		}
-		return null;
-	}
+		// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
+	private void pawnBlackMove(String move) {
+		
+		int i = getRow(move.substring(0, 2));
+		int j = getColumn(move.substring(0, 2));
 
+		String nextPosition = move.substring(2);
+		int nextRow = getRow(nextPosition);
+		int nextColumn = getColumn(nextPosition);
+
+		// daca este o mutare de tip en passant, se elimina pionul din spatele
+		// destinatiei
+		if (this.grid[i][j].enPassant != null) {
+			int row = this.getRow(nextPosition) + 1;
+			int column = this.getColumn(nextPosition);
+			this.grid[row][column] = new Empty(this.getPosition(row, column), false, this);
+			// se reseteaza campul pentru pionul mutat
+			this.grid[i][j].enPassant = null;
+		}
+
+		// daca pionul ajunge in baza oponentului, se transforma in regina
+		if (this.getRow(nextPosition) == 0) {
+			this.grid[nextRow][nextColumn] = new Queen(nextPosition, false, this);
+		} else {
+
+			// actualizare grid
+			this.grid[nextRow][nextColumn] = this.grid[i][j];
+			// actualizare camp pentru pozitie
+			this.grid[nextRow][nextColumn].position = nextPosition;
+		}
+		// setare camp gol pe pozitia anterioara
+		this.grid[i][j] = new Empty(getPosition(i, j), false, this);
+	}
 
 	// verifica daca regele engine-ului se afla in sah
 	public boolean isCheck(String kingPosition) {
@@ -248,266 +264,7 @@ public class Game {
 	}
 
 
-	// intorce o lista de mutari complete (care contin atat sursa cat si destinatia)
-	public ArrayList<String> updateAllPossibleMoves(Piece[][] grid, Boolean color) {
-		int i, j;
-		allMoves = new ArrayList<String>();
-		for(i = 0; i <= 7; i++) {
-			for(j = 0; j <= 7; j++) {
-				if (!(grid[i][j] instanceof Empty) && (grid[i][j].color == color)) {
-					grid[i][j].updatePossibleMoves(color);
-					for(String s : grid[i][j].possibleMoves) {
-						allMoves.add(s);
-					}
-				}
-			}
-		}
-		return allMoves;
-	}
-
-
-	// minimax simplu pentru calculul celei mai bune mutari
-	public Pair <Integer, String> minimax(Piece[][] grid, Boolean color, int depth) {
-		if(depth == 0) {
-			return new Pair<Integer, String>(this.eval(grid, color), "");
-		}
-
-		this.updateAllPossibleMoves(grid, color);
-		System.out.println(this.allMoves + " " + color + " " + depth + " " + eval(grid, color));
-		if(this.allMoves.size() == 0) {
-			// daca nu avem mutari legale, intoarcem un string gol si scor 0
-			return new Pair<Integer, String>(-10000, "");
-		}
-		int max = -10000;
-		String bestMove = "";
-		for(String move : this.allMoves) {
-			// grid auxiliar folosit pentru a retine grid-ul
-			Piece[][] gridAux = this.cloneGrid(grid);
-
-			gridAux = this.applyMove(gridAux, move);
-
-			// if(this.eval(gridAux, color) != 0 && depth == 3)
-			// System.out.println(move + " " + this.eval(gridAux, color) + " depth = " + depth);
-
-			Pair <Integer, String> p = minimax(gridAux, (!color) , depth - 1);
-
-			if(-p.first > max) {
-				max = -p.first;
-				bestMove = move; 
-			}
-		} 
-
-		return new Pair<Integer, String>(max, bestMove);
-	}
-
-
-	// metoda care actualizeaza grid-ul in urma unei mutari
-	Piece[][] applyMove(Piece[][] grid, String move) {
-		Piece[][] newGrid = this.cloneGrid(grid);
-
-		int i = getRow(move.substring(0, 2));
-		int j = getColumn(move.substring(0, 2));
-
-		String nextPosition = move.substring(2);
-		int nextRow = getRow(nextPosition);
-		int nextColumn = getColumn(nextPosition);
-		
-		// if (grid[i][j] instanceof Pawn && grid[i][j].color == side) {
-		// 		if(this.side == false) {
-		// 			if(pawnBlackMove(i, j, kingPosition, nextPosition, bout)){
-		// 				return;
-		// 			}
-		// 		} else {
-		// 			if(pawnWhiteMove(i, j, kingPosition, nextPosition, bout)){
-		// 				return;
-		// 			}
-		// 		}
-		// }
-
-		newGrid[nextRow][nextColumn] = grid[i][j];	
-		newGrid[nextRow][nextColumn].position = this.getPosition(nextRow, nextColumn);
-
-		newGrid[i][j] = new Empty(getPosition(i, j), false, this);
-		return newGrid;
-	}
-
-	public void makeMove2(BufferedOutputStream bout) throws IOException {
-		Pair <Integer, String> pair = minimax(this.grid, this.side, 3);
-		String move = pair.second;
-		if(move.equals("")) {
-			bout.write(String.format("resign\n").getBytes());
-			bout.flush();
-			return;
-		}
-		
-		this.grid = applyMove(this.grid, move);
-		this.printGrid();
-		// afisare mutare
-		bout.write(String.format("move " + move + "\n").getBytes());
-		bout.flush();
-	}
-
-	public void makeMove(BufferedOutputStream bout) throws IOException  {
-
-		String kingPosition = this.getKingPosition(this.grid, this.side);
-		ArrayList <String> allMoves = updateAllPossibleMoves(this.grid, this.side);
-		
-		for(String move : allMoves) {
-			int i = getRow(move.substring(0, 2));
-			int j = getColumn(move.substring(0, 2));
-
-			String nextPosition = move.substring(2);
-			int nextRow = getRow(nextPosition);
-			int nextColumn = getColumn(nextPosition);
-
-			// Mutare pion
-			if (this.grid[i][j] instanceof Pawn && this.grid[i][j].color == this.side) {
-				if(this.side == false) {
-					if(pawnBlackMove(i, j, kingPosition, nextPosition, bout)){
-						return;
-					}
-				} else {
-					if(pawnWhiteMove(i, j, kingPosition, nextPosition, bout)){
-						return;
-					}
-				}
-			} else if (!(this.grid[i][j] instanceof Empty) && this.grid[i][j].color == this.side) {
-				// salvare piesa
-				Piece aux = clonePiece(this.grid[nextRow][nextColumn]);
-				// actualizare grid
-				this.grid[nextRow][nextColumn] = this.grid[i][j];
-				// actualizare camp pentru pozitie
-				this.grid[nextRow][nextColumn].position = nextPosition;
-
-				// setare camp gol pe pozitia anterioara
-				this.grid[i][j] = new Empty(getPosition(i, j), false, this);
-							
-				// verificare daca regele a fost mutat in sah
-				if(this.grid[nextRow][nextColumn] instanceof King && this.isCheck(nextPosition)) {
-					// refacere grid
-					this.grid[i][j] = this.grid[nextRow][nextColumn];
-					// refacere camp pentru pozitie
-					this.grid[i][j].position = this.getPosition(i, j);
-					// setare camp gol pe pozitia urmatoare
-					this.grid[nextRow][nextColumn] = aux;
-					continue;
-				}
-
-				// verificare daca regele este in sah dupa efectuarea mutarii
-				if (this.isCheck(kingPosition)) {
-					// actualizare grid
-					this.grid[i][j] = this.grid[nextRow][nextColumn];
-					// actualizare camp pentru pozitie
-					this.grid[i][j].position = this.getPosition(i, j);
-
-					// setare camp gol pe pozitia anterioara
-					this.grid[nextRow][nextColumn] = aux;
-					continue;
-				}
-
-				// afisare mutare
-				bout.write(String.format("move " + move + "\n").getBytes());
-				bout.flush();
-				return;
-			}
-		}
-		bout.write(String.format("resign\n").getBytes());
-		bout.flush();
-	}
-
-	// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
-	private boolean pawnWhiteMove(int i, int j, String kingPosition, String nextPosition, BufferedOutputStream bout)
-			throws IOException {
-		Piece aux = null;
-		// daca este o mutare de tip en passant, se elimina pionul din spatele
-		// destinatiei
-		if (this.grid[i][j].enPassant != null) {
-			int row = this.getRow(nextPosition) - 1;
-			int column = this.getColumn(nextPosition);
-			this.grid[row][column] = new Empty(this.getPosition(row, column), false, this);
-			// se reseteaza campul pentru pionul mutat
-			this.grid[i][j].enPassant = null;
-		}
-
-		// daca pionul ajunge in baza oponentului, se transforma in regina
-		if (this.grid[i][j] instanceof Pawn && this.getRow(nextPosition) == 7) {
-			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Queen(
-					nextPosition, true, this);
-		} else {
-			// salvare piesa
-			aux = clonePiece(this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)]);
-			// actualizare grid
-			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
-			// actualizare camp pentru pozitie
-			this.grid[this.getRow(nextPosition)][this
-					.getColumn(nextPosition)].position = nextPosition;
-		}
-
-		// setare camp gol pe pozitia anterioara
-		this.grid[i][j] = new Empty(getPosition(i, j), false, this);
-
-		// verificare daca regele este in sah dupa efectuarea mutarii
-		if (this.isCheck(kingPosition)) {
-			// refacere grid
-			String prevPosition = this.getPosition(i, j);
-			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = aux;
-			this.grid[i][j] = new Pawn(prevPosition, true, this);
-			this.grid[i][j].position = prevPosition;
-			return false;
-		}
-
-		
-		// afisare mutare
-		bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
-		bout.flush();
-		this.printGrid();
-		return true;	
-	}
-	
-	// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
-	private boolean pawnBlackMove(int i, int j, String kingPosition, String nextPosition, BufferedOutputStream bout)
-			throws IOException {
-		Piece aux = null;
-		// daca este o mutare de tip en passant, se elimina pionul din spatele
-		// destinatiei
-		if (this.grid[i][j].enPassant != null) {
-			int row = this.getRow(nextPosition) + 1;
-			int column = this.getColumn(nextPosition);
-			this.grid[row][column] = new Empty(this.getPosition(row, column), false, this);
-			// se reseteaza campul pentru pionul mutat
-			this.grid[i][j].enPassant = null;
-		}
-
-		// daca pionul ajunge in baza oponentului, se transforma in regina
-		if (this.getRow(nextPosition) == 0) {
-			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = new Queen(nextPosition, false, this);
-		} else {
-			// salvare piesa
-			aux = clonePiece(this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)]);
-			// actualizare grid
-			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = this.grid[i][j];
-			// actualizare camp pentru pozitie
-			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)].position = nextPosition;
-		}
-		// setare camp gol pe pozitia anterioara
-		this.grid[i][j] = new Empty(getPosition(i, j), false, this);
-
-		// verificare daca regele este in sah dupa efectuarea mutarii
-		if (this.isCheck(kingPosition)) {
-			// refacere grid
-			String prevPosition = this.getPosition(i, j);
-			this.grid[this.getRow(nextPosition)][this.getColumn(nextPosition)] = aux;
-			this.grid[i][j] = new Pawn(prevPosition, false, this);
-			this.grid[i][j].position = prevPosition;
-			return false;
-		}
-
-		// afisare mutare
-		bout.write(String.format("move " + getPosition(i, j) + nextPosition + "\n").getBytes());
-		bout.flush();
-		this.printGrid();
-		return true;
-	}
+	// Alte functii ajutatoare
 
 	// intoarce pozitia sub forma de string
 	public String getPosition(int row, int column) {
@@ -571,13 +328,20 @@ public class Game {
 		return newGrid;
 	}
 
+	// creaza o copie a jocului cu culoarea opusa celei curente
+	public Game cloneGame() {
+		Game copy = new Game(!(this.side));
+		copy.grid = cloneGrid(this.grid);
+		return copy;
+	}
+
 	// metoda folosita pentru debug - afiseaza in fisierul grid.txt grid-ul
 	// daca fisierul e deschis cu sublime, se va actualiza dupa fiecare mutare
 	// a engine-ului
 	public void printGrid() throws FileNotFoundException {
 		StringBuilder gridb = new StringBuilder();
 		PrintWriter wr = new PrintWriter(new File("grid.txt"));
-		wr.append("Engine evaluates to " + this.eval(this.grid, this.side) + "\n");
+		wr.append("Engine evaluates to " + this.eval() + "\n");
 		for (int i = 7; i >= 0; i--) {
 			for (int j = 0; j < 8; j++) {
 				if (grid[i][j] instanceof Empty) {

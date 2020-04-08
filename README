@@ -1,7 +1,11 @@
 Update-uri - etapa 2
 
-update - Andreea, Sergiu, Alin - 04.04
-- adaugare functii eval, updateAllPossibleMoves, minimax
+update - Sergiu - 08.04
+- mutarea metodelor folosite pentru interpretarea mutarilor adversarului in
+clasa OpponentMove
+- modularizare clasa Game
+- modificare metode din clasa Game + noua metoda MakeMove stie sa faca mutari
+speciale ale pionului
 
 update - Sergiu - 05.04
 - modificare updatePossibleMoves pentru Rege - nu mai verifica daca e in sah
@@ -16,18 +20,8 @@ update - Sergiu - 05.04
 - modificari makeMove - modularizare + ia mutarile din allPossibleMoves acum
 - bugfix in main (se bloca cateodata cand schimbam partea pe care joaca bot-ul)
 
-
-
-
-
-
-
-
-
-
-
-
-
+update - Andreea, Sergiu, Alin - 04.04
+- adaugare functii eval, updateAllPossibleMoves, minimax
 
 
 Proiect PA 2020 - Etapa 1

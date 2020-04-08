@@ -61,15 +61,15 @@ public class Engine {
 					}
 
 					if(command.equals("go")) {
-						game.makeMove2(bout);
+						game.makeMove(bout);
 					}
 
 					if (command.length() == 4 || command.length() == 5) {
 						if (Character.isLetter(command.charAt(0)) && Character.isLetter(command.charAt(2))
 								&& Character.isDigit(command.charAt(1)) && Character.isDigit(command.charAt(3))) {
-
-							game.opponentMove(command);
-							game.makeMove2(bout);
+							OpponentMove.opponentMove(game, command);
+							//game.opponentMove(command);
+							game.makeMove(bout);
 						}
 					}
 
@@ -80,8 +80,8 @@ public class Engine {
 					if (command.length() == 4) {
 						if (Character.isLetter(command.charAt(0)) && Character.isLetter(command.charAt(2))
 								&& Character.isDigit(command.charAt(1)) && Character.isDigit(command.charAt(3))) {
-
-							game.opponentMove(command);
+							OpponentMove.opponentMove(game, command);
+							//game.opponentMove(command);
 						}
 					}
 
@@ -101,7 +101,7 @@ public class Engine {
 						pause = 0;
 						game.side = sideAfterForce;
 						sideAfterForce = !sideAfterForce;
-						game.makeMove2(bout);
+						game.makeMove(bout);
 
 					// in cazul comenzii "new", engine-ul joaca cu negru
 					} else if (command.equals("new")) {
