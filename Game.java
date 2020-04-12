@@ -22,7 +22,7 @@ public class Game {
 
 	public Game(boolean side) {
 		this.side = side;
-		grid = new Piece[8][8];
+		this.grid = new Piece[8][8];
 
 		// Spatii goale
 		for (int i = 2; i < 6; i++) {
@@ -64,16 +64,74 @@ public class Game {
 
 	}
 
-	// Functia de evaluare a grid-ului
-	public int eval() {
+	public Game(Boolean side, Piece[][] grid) {
+		this.side = side;
+		this.grid = grid;
+	}
+
+	public int evalByColor(Piece[][] grid, Boolean side) {
 		int i, j;
 		int score = 0;
 		for(i = 0; i <= 7; i++) {
 			for(j = 0; j <= 7; j++) {
+				// if(grid[i][j] instanceof Pawn && (grid[i][j].color == side)) {
+				// 	if(side == true) {
+				// 		score += PieceSquareValues.WhitePawnSquare[i][j];
+				// 	} else {
+				// 		score += PieceSquareValues.BlackPawnSquare[i][j];
+				// 	}
+				// }
+
+				// if(grid[i][j] instanceof Pawn && (grid[i][j].color != side)) {
+				// 	if(side == true) {
+				// 		score -= PieceSquareValues.WhitePawnSquare[i][j];
+				// 	} else {
+				// 		score -= PieceSquareValues.BlackPawnSquare[i][j];
+				// 	}
+					
+				// }
+
 				if (!(grid[i][j] instanceof Empty) && (grid[i][j].color == side)) {
 					score += grid[i][j].score;
 				} else if (!(grid[i][j] instanceof Empty) && (grid[i][j].color != side)){
 					score -= grid[i][j].score;
+				}
+			}
+		}
+
+		return score;
+	}
+
+	// Functia de evaluare a grid-ului
+	public int eval(Game game) {
+		int i, j;
+		int score = 0;
+		for(i = 0; i <= 7; i++) {
+			for(j = 0; j <= 7; j++) {
+
+				// // punctare in functie de pozitia pe care se afla pionii
+				// if(game.grid[i][j] instanceof Pawn && (game.grid[i][j].color == game.side)) {
+				// 	if(game.side == true) {
+				// 		score += PieceSquareValues.WhitePawnSquare[i][j];
+				// 	} else {
+				// 		score += PieceSquareValues.BlackPawnSquare[i][j];
+				// 	}
+					
+				// }
+
+				// if(game.grid[i][j] instanceof Pawn && (game.grid[i][j].color != game.side)) {
+				// 	if(game.side == true) {
+				// 		score -= PieceSquareValues.WhitePawnSquare[i][j];
+				// 	} else {
+				// 		score -= PieceSquareValues.BlackPawnSquare[i][j];
+				// 	}
+					
+				// }
+
+				if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color == game.side)) {
+					score += game.grid[i][j].score;
+				} else if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color != game.side)){
+					score -= game.grid[i][j].score;
 				}
 			}
 		}
@@ -82,40 +140,40 @@ public class Game {
 
 
 	// intorce o lista de mutari complete (care contin atat sursa cat si destinatia)
-	public ArrayList<String> updateAllPossibleMoves() {
+	public void updateAllPossibleMoves(Game game) {
 		int i, j;
-		allMoves = new ArrayList<String>();
+		game.allMoves = new ArrayList<String>();
 		for(i = 0; i <= 7; i++) {
 			for(j = 0; j <= 7; j++) {
-				if (!(grid[i][j] instanceof Empty) && (grid[i][j].color == this.side)) {
-					grid[i][j].updatePossibleMoves(this.side);
-					for(String s : grid[i][j].possibleMoves) {
-						allMoves.add(s);
+				if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color == game.side)) {
+					game.grid[i][j].updatePossibleMoves(game.side, game);
+					for(String s : game.grid[i][j].possibleMoves) {
+						game.allMoves.add(s);
 					}
 				}
 			}
 		}
-		return allMoves;
 	}
 
 	// Algoritm minimax
 	public Pair <Integer, String> minimax(Game game, int depth) {
-		if(depth == -1) {
-			return new Pair<Integer, String>(game.eval(), "");
+		if(depth == 0) {
+			return new Pair<Integer, String>(game.eval(game), "");
 		}
 
-		game.updateAllPossibleMoves();
+		game.updateAllPossibleMoves(game);		
 
 		if(game.allMoves.isEmpty()) {
-			return new Pair<Integer, String>(-10000, "");
+			return new Pair<Integer, String>(-100000, "");
 		}
 
-		int bestScore = -10000;
+		int bestScore = -100000;
 		String bestMove = "";
 
 		for(String move : game.allMoves) {
-			Game copy = game.cloneGame();
-			copy.applyMove(move);
+			Game copy = game.cloneGame(game);
+			copy.side = !(copy.side);
+			copy.applyMove(copy, move);
 
 			int score = -minimax(copy, depth - 1).first;
 
@@ -123,13 +181,14 @@ public class Game {
 				bestScore = score;
 				bestMove = move; 
 			}
-		}
 
+		}
+		
 		return new Pair <Integer, String> (bestScore, bestMove);
 	}
 
 	// metoda care actualizeaza grid-ul in urma unei mutari
-	public void applyMove(String move) {
+	public void applyMove(Game game, String move) {
 
 		int i = getRow(move.substring(0, 2));
 		int j = getColumn(move.substring(0, 2));
@@ -137,27 +196,27 @@ public class Game {
 		int nextRow = getRow(nextPosition);
 		int nextColumn = getColumn(nextPosition);
 
-		if (this.grid[i][j] instanceof Pawn && this.grid[i][j].color == this.side) {
-			if(this.side == false) {
-				pawnBlackMove(move);
+		if (game.grid[i][j] instanceof Pawn && game.grid[i][j].color == game.side) {
+			if(game.side == false) {
+				game.pawnBlackMove(game, move);
 					
 			} else {
-				pawnWhiteMove(move);
+				game.pawnWhiteMove(game, move);
 			}
 		}
 		else {
-			grid[nextRow][nextColumn] = grid[i][j];	
-			grid[nextRow][nextColumn].position = this.getPosition(nextRow, nextColumn);
+			game.grid[nextRow][nextColumn] = game.grid[i][j];	
+			game.grid[nextRow][nextColumn].position = game.getPosition(nextRow, nextColumn);
 
-			grid[i][j] = new Empty(getPosition(i, j), false, this);
+			game.grid[i][j] = new Empty(getPosition(i, j), false, game);
 		}	
 
 	}
 
 	// Functie care trimite o comanda la xboard in functie de ce intoarce algoritmul minimax
 	public void makeMove(BufferedOutputStream bout) throws IOException {
+		Pair <Integer, String> pair = minimax(this, 2);
 
-		Pair <Integer, String> pair = minimax(this, 3);
 		String move = pair.second;
 
 		if(move.equals("")) {
@@ -166,7 +225,7 @@ public class Game {
 			return;
 		}
 		
-		applyMove(move);
+		this.applyMove(this, move);
 
 		// afisare mutare
 		bout.write(String.format("move " + move + "\n").getBytes());
@@ -174,7 +233,7 @@ public class Game {
 	}
 
 	// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
-	private void pawnWhiteMove(String move) {
+	private void pawnWhiteMove(Game game, String move) {
 
 		int i = getRow(move.substring(0, 2));
 		int j = getColumn(move.substring(0, 2));
@@ -185,32 +244,32 @@ public class Game {
 
 		// daca este o mutare de tip en passant, se elimina pionul din spatele
 		// destinatiei
-		if (this.grid[i][j].enPassant != null) {
-			int row = this.getRow(nextPosition) - 1;
-			int column = this.getColumn(nextPosition);
-			this.grid[row][column] = new Empty(this.getPosition(row, column), false, this);
+		if (game.grid[i][j].enPassant != null) {
+			int row = game.getRow(nextPosition) - 1;
+			int column = game.getColumn(nextPosition);
+			game.grid[row][column] = new Empty(game.getPosition(row, column), false, game);
 			// se reseteaza campul pentru pionul mutat
-			this.grid[i][j].enPassant = null;
+			game.grid[i][j].enPassant = null;
 		}
 
 		// daca pionul ajunge in baza oponentului, se transforma in regina
-		if (this.grid[i][j] instanceof Pawn && nextRow == 7) {
-			this.grid[nextRow][nextColumn] = new Queen(
-					nextPosition, true, this);
+		if (game.grid[i][j] instanceof Pawn && nextRow == 7) {
+			game.grid[nextRow][nextColumn] = new Queen(
+					nextPosition, true, game);
 		} else {
 			// actualizare grid
-			this.grid[nextRow][nextColumn] = this.grid[i][j];
+			game.grid[nextRow][nextColumn] = game.grid[i][j];
 			// actualizare camp pentru pozitie
-			this.grid[nextRow][nextColumn].position = nextPosition;
+			game.grid[nextRow][nextColumn].position = nextPosition;
 		}
 
 		// setare camp gol pe pozitia anterioara
-		this.grid[i][j] = new Empty(getPosition(i, j), false, this);
+		game.grid[i][j] = new Empty(getPosition(i, j), false, game);
 
 	}
 
 		// metoda folosita in cazul in care engine-ul joaca pe alb si are mutare legala pentru un pion
-	private void pawnBlackMove(String move) {
+	private void pawnBlackMove(Game game, String move) {
 		
 		int i = getRow(move.substring(0, 2));
 		int j = getColumn(move.substring(0, 2));
@@ -221,40 +280,55 @@ public class Game {
 
 		// daca este o mutare de tip en passant, se elimina pionul din spatele
 		// destinatiei
-		if (this.grid[i][j].enPassant != null) {
-			int row = this.getRow(nextPosition) + 1;
-			int column = this.getColumn(nextPosition);
-			this.grid[row][column] = new Empty(this.getPosition(row, column), false, this);
+		if (game.grid[i][j].enPassant != null) {
+			int row = game.getRow(nextPosition) + 1;
+			int column = game.getColumn(nextPosition);
+			game.grid[row][column] = new Empty(game.getPosition(row, column), false, game);
 			// se reseteaza campul pentru pionul mutat
-			this.grid[i][j].enPassant = null;
+			game.grid[i][j].enPassant = null;
 		}
 
 		// daca pionul ajunge in baza oponentului, se transforma in regina
-		if (this.getRow(nextPosition) == 0) {
-			this.grid[nextRow][nextColumn] = new Queen(nextPosition, false, this);
+		if (game.getRow(nextPosition) == 0) {
+			game.grid[nextRow][nextColumn] = new Queen(nextPosition, false, game);
 		} else {
 
 			// actualizare grid
-			this.grid[nextRow][nextColumn] = this.grid[i][j];
+			game.grid[nextRow][nextColumn] = game.grid[i][j];
 			// actualizare camp pentru pozitie
-			this.grid[nextRow][nextColumn].position = nextPosition;
+			game.grid[nextRow][nextColumn].position = nextPosition;
 		}
 		// setare camp gol pe pozitia anterioara
-		this.grid[i][j] = new Empty(getPosition(i, j), false, this);
+		game.grid[i][j] = new Empty(getPosition(i, j), false, game);
+	}
+
+	public String getKingPosition(Game game) {
+		String kingPosition = "";
+		int i, j, k;
+		for (i = 0; i < 8; i++) {
+			for (j = 0; j < 8; j++) {
+				if(game.grid[i][j] instanceof King && game.grid[i][j].color == game.side) {
+					kingPosition = game.getPosition(i, j);
+					return kingPosition;
+				}
+			}
+		}
+		return null;
 	}
 
 	// verifica daca regele engine-ului se afla in sah
-	public boolean isCheck(String kingPosition) {
+	public boolean isCheck(Game game) {
 
+		String kingPosition = game.getKingPosition(game);
 		int i, j, k;
 
 		for (i = 0; i < 8; i++) {
 			for (j = 0; j < 8; j++) {
-				if (!(this.grid[i][j] instanceof Empty) && (this.grid[i][j].color != this.side)) {
-					this.grid[i][j].updatePossibleMoves(!(this.side));
+				if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color != game.side)) {
+					game.grid[i][j].updatePossibleMoves(!(game.side), game);
 
-					for (k = 0; k < this.grid[i][j].possibleMoves.size(); k++) {
-						if (this.grid[i][j].possibleMoves.get(k).indexOf(kingPosition) >= 0)
+					for (k = 0; k < game.grid[i][j].possibleMoves.size(); k++) {
+						if (game.grid[i][j].possibleMoves.get(k).indexOf(kingPosition) >= 0)
 							return true;
 					}
 				}
@@ -329,19 +403,81 @@ public class Game {
 	}
 
 	// creaza o copie a jocului cu culoarea opusa celei curente
-	public Game cloneGame() {
-		Game copy = new Game(!(this.side));
-		copy.grid = cloneGrid(this.grid);
-		return copy;
+	public Game cloneGame(Game game) {
+		return new Game((game.side), game.cloneGrid(game.grid));
 	}
+
+
+
 
 	// metoda folosita pentru debug - afiseaza in fisierul grid.txt grid-ul
 	// daca fisierul e deschis cu sublime, se va actualiza dupa fiecare mutare
 	// a engine-ului
+
+	public void showGrid() {
+		StringBuilder gridb = new StringBuilder();
+		for (int i = 7; i >= 0; i--) {
+			for (int j = 0; j < 8; j++) {
+				if (grid[i][j] instanceof Empty) {
+					gridb.append("0  ");
+				}
+
+				else if (grid[i][j].color == false) {
+					if (grid[i][j] instanceof Pawn) {
+						gridb.append("p  ");
+					}
+					if (grid[i][j] instanceof Bishop) {
+						gridb.append("b  ");
+					}
+					if (grid[i][j] instanceof Knight) {
+						gridb.append("kn ");
+					}
+					if (grid[i][j] instanceof King) {
+						gridb.append("ki ");
+					}
+					if (grid[i][j] instanceof Queen) {
+						gridb.append("q  ");
+					}
+					if (grid[i][j] instanceof Rook) {
+						gridb.append("r  ");
+					}
+
+				} else {
+					if (grid[i][j] instanceof Pawn) {
+						gridb.append("P  ");
+					}
+					if (grid[i][j] instanceof Bishop) {
+						gridb.append("B  ");
+					}
+					if (grid[i][j] instanceof Knight) {
+						gridb.append("KN ");
+					}
+					if (grid[i][j] instanceof King) {
+						gridb.append("KI ");
+					}
+					if (grid[i][j] instanceof Queen) {
+						gridb.append("Q  ");
+					}
+					if (grid[i][j] instanceof Rook) {
+						gridb.append("R  ");
+					}
+
+				}
+
+				if (j == 7) {
+					gridb.append("\n");
+				}
+			}
+		}
+
+		System.out.println(gridb.toString() + "\n");
+
+	}
+
 	public void printGrid() throws FileNotFoundException {
 		StringBuilder gridb = new StringBuilder();
 		PrintWriter wr = new PrintWriter(new File("grid.txt"));
-		wr.append("Engine evaluates to " + this.eval() + "\n");
+		wr.append("Engine evaluates to " + this.eval(this) + "\n");
 		for (int i = 7; i >= 0; i--) {
 			for (int j = 0; j < 8; j++) {
 				if (grid[i][j] instanceof Empty) {

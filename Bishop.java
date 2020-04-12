@@ -9,20 +9,19 @@ public class Bishop extends Piece {
 		this.color = color;
 		this.possibleMoves = new ArrayList <String>();
 		this.game = game;
-		this.score = 3;		
+		this.score = 320;		
 	}
 
-	public void updatePossibleMoves(boolean side) {
+	public void updatePossibleMoves(boolean side, Game game) {
 		
 		// resetare arrayList possibleMoves
 		this.possibleMoves = new ArrayList <String>();
 		
 		int row, column, i, j;
-		Game game;
 		
 		row = this.getRow();
 		column = this.getColumn();
-		game = this.game;
+		this.game = game;
 		
 		// Stanga-sus
 		i = row;

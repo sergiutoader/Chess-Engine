@@ -9,22 +9,21 @@ public class Queen extends Piece {
 		this.color = color;
 		this.possibleMoves = new ArrayList<String>();
 		this.game = game;
-		this.score = 9;
+		this.score = 900;
 
 	}
 
-	public void updatePossibleMoves(boolean side) {
-
+	public void updatePossibleMoves(boolean side, Game game) {
+		
 		// resetare arrayList possibleMoves
 		this.possibleMoves = new ArrayList<String>();
 
 		int row, column, i, j;
-		Game game;
 
 		row = this.getRow();
 		column = this.getColumn();
-		game = this.game;
-
+		this.game = game;
+		
 		// Stanga-sus
 		i = row;
 		j = column;

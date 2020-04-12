@@ -9,20 +9,19 @@ public class Rook extends Piece {
 		this.color = color;
 		this.possibleMoves = new ArrayList <String>();
 		this.game = game;
-		this.score = 5;
+		this.score = 500;
 	}
 
-	public void updatePossibleMoves(boolean side) {
+	public void updatePossibleMoves(boolean side, Game game) {
 		
 		// resetare arrayList possibleMoves
 		this.possibleMoves = new ArrayList <String>();
 		
 		int row, column, i, j;
-		Game game;
 		
 		row = this.getRow();
 		column = this.getColumn();
-		game = this.game;
+		this.game = game;
 		
 		// Sus
 		i = row;

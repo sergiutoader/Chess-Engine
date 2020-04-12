@@ -68,7 +68,6 @@ public class Engine {
 						if (Character.isLetter(command.charAt(0)) && Character.isLetter(command.charAt(2))
 								&& Character.isDigit(command.charAt(1)) && Character.isDigit(command.charAt(3))) {
 							OpponentMove.opponentMove(game, command);
-							//game.opponentMove(command);
 							game.makeMove(bout);
 						}
 					}
@@ -81,7 +80,6 @@ public class Engine {
 						if (Character.isLetter(command.charAt(0)) && Character.isLetter(command.charAt(2))
 								&& Character.isDigit(command.charAt(1)) && Character.isDigit(command.charAt(3))) {
 							OpponentMove.opponentMove(game, command);
-							//game.opponentMove(command);
 						}
 					}
 

@@ -1,5 +1,10 @@
 Update-uri - etapa 2
 
+update - Sergiu - 12.04
+- fixat bug minimax
+- am adaugat clasa PieceSquareValues ca sa implementam cateva euristici legate
+de pozitia pieselor pe tabla
+
 update - Sergiu - 08.04
 - mutarea metodelor folosite pentru interpretarea mutarilor adversarului in
 clasa OpponentMove

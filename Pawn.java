@@ -10,18 +10,19 @@ public class Pawn extends Piece {
 		// Pionul poate avea maxim 4 mutari posibile la un moment de timp
 		this.possibleMoves = new ArrayList<String>();
 		this.game = game;
-		this.score = 1;
+		this.score = 100;
 
 	}
 
-	public void updatePossibleMoves(boolean side) {
-
+	public void updatePossibleMoves(boolean side, Game game) {
+		
 		// resetare arrayList possibleMoves
 		this.possibleMoves = new ArrayList<String>();
 
 		int row = this.getRow();
 		int column = this.getColumn();
-
+		this.game = game;
+		
 		if (side == false) {
 
 			// mutare de tip en passant

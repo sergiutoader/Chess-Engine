@@ -10,7 +10,7 @@ public abstract class Piece {
 	public String enPassant = null;
 	public int score;
 	
-	public abstract void updatePossibleMoves(boolean side);
+	public abstract void updatePossibleMoves(boolean side, Game game);
 	protected int getRow(){
 		return position.charAt(1) - '0' - 1;
 	}
@@ -19,4 +19,8 @@ public abstract class Piece {
 		return position.charAt(0) - 'a';
 	}
 
+	@Override
+	public String toString(){
+		return ("Position: " + position +"; Color: " + color + "; Score: " + score);
+	}
 }
