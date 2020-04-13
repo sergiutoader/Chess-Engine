@@ -69,27 +69,28 @@ public class Game {
 		this.grid = grid;
 	}
 
+	// pentru debug
 	public int evalByColor(Piece[][] grid, Boolean side) {
 		int i, j;
 		int score = 0;
 		for(i = 0; i <= 7; i++) {
 			for(j = 0; j <= 7; j++) {
-				// if(grid[i][j] instanceof Pawn && (grid[i][j].color == side)) {
-				// 	if(side == true) {
-				// 		score += PieceSquareValues.WhitePawnSquare[i][j];
-				// 	} else {
-				// 		score += PieceSquareValues.BlackPawnSquare[i][j];
-				// 	}
-				// }
+				if(grid[i][j] instanceof Pawn && (grid[i][j].color == side)) {
+					if(side == true) {
+						score += PieceSquareValues.WhitePawnSquare[i][j];
+					} else {
+						score += PieceSquareValues.BlackPawnSquare[i][j];
+					}
+				}
 
-				// if(grid[i][j] instanceof Pawn && (grid[i][j].color != side)) {
-				// 	if(side == true) {
-				// 		score -= PieceSquareValues.WhitePawnSquare[i][j];
-				// 	} else {
-				// 		score -= PieceSquareValues.BlackPawnSquare[i][j];
-				// 	}
+				if(grid[i][j] instanceof Pawn && (grid[i][j].color != side)) {
+					if(side == true) {
+						score -= PieceSquareValues.WhitePawnSquare[i][j];
+					} else {
+						score -= PieceSquareValues.BlackPawnSquare[i][j];
+					}
 					
-				// }
+				}
 
 				if (!(grid[i][j] instanceof Empty) && (grid[i][j].color == side)) {
 					score += grid[i][j].score;
@@ -109,24 +110,24 @@ public class Game {
 		for(i = 0; i <= 7; i++) {
 			for(j = 0; j <= 7; j++) {
 
-				// // punctare in functie de pozitia pe care se afla pionii
-				// if(game.grid[i][j] instanceof Pawn && (game.grid[i][j].color == game.side)) {
-				// 	if(game.side == true) {
-				// 		score += PieceSquareValues.WhitePawnSquare[i][j];
-				// 	} else {
-				// 		score += PieceSquareValues.BlackPawnSquare[i][j];
-				// 	}
+				// punctare in functie de pozitia pe care se afla pionii
+				if(game.grid[i][j] instanceof Pawn && (game.grid[i][j].color == game.side)) {
+					if(game.side == true) {
+						score += PieceSquareValues.WhitePawnSquare[i][j];
+					} else {
+						score += PieceSquareValues.BlackPawnSquare[i][j];
+					}
 					
-				// }
+				}
 
-				// if(game.grid[i][j] instanceof Pawn && (game.grid[i][j].color != game.side)) {
-				// 	if(game.side == true) {
-				// 		score -= PieceSquareValues.WhitePawnSquare[i][j];
-				// 	} else {
-				// 		score -= PieceSquareValues.BlackPawnSquare[i][j];
-				// 	}
+				if(game.grid[i][j] instanceof Pawn && (game.grid[i][j].color != game.side)) {
+					if(game.side == true) {
+						score -= PieceSquareValues.WhitePawnSquare[i][j];
+					} else {
+						score -= PieceSquareValues.BlackPawnSquare[i][j];
+					}
 					
-				// }
+				}
 
 				if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color == game.side)) {
 					score += game.grid[i][j].score;
@@ -155,9 +156,22 @@ public class Game {
 		}
 	}
 
+	// verifica daca numarul de regi de pe grid este diferit de 2
+	public boolean ended(Game game) {
+		int kingCount = 0;
+		for (int i = 0; i < 8; i++) {
+			for(int j = 0; j < 8; j++) {
+				if(game.grid[i][j] instanceof King) {
+					kingCount++;
+				}
+			}
+		}
+		return kingCount != 2;
+	}
+
 	// Algoritm minimax
 	public Pair <Integer, String> minimax(Game game, int depth) {
-		if(depth == 0) {
+		if(depth == 0 || game.ended(game)) {
 			return new Pair<Integer, String>(game.eval(game), "");
 		}
 
@@ -172,8 +186,9 @@ public class Game {
 
 		for(String move : game.allMoves) {
 			Game copy = game.cloneGame(game);
-			copy.side = !(copy.side);
 			copy.applyMove(copy, move);
+
+			copy.side = !(copy.side);
 
 			int score = -minimax(copy, depth - 1).first;
 
@@ -215,7 +230,7 @@ public class Game {
 
 	// Functie care trimite o comanda la xboard in functie de ce intoarce algoritmul minimax
 	public void makeMove(BufferedOutputStream bout) throws IOException {
-		Pair <Integer, String> pair = minimax(this, 2);
+		Pair <Integer, String> pair = minimax(this, 3);
 
 		String move = pair.second;
 
@@ -322,19 +337,21 @@ public class Game {
 		String kingPosition = game.getKingPosition(game);
 		int i, j, k;
 
-		for (i = 0; i < 8; i++) {
-			for (j = 0; j < 8; j++) {
-				if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color != game.side)) {
-					game.grid[i][j].updatePossibleMoves(!(game.side), game);
+		if(kingPosition == null) {
+			return true;
+		}
 
-					for (k = 0; k < game.grid[i][j].possibleMoves.size(); k++) {
-						if (game.grid[i][j].possibleMoves.get(k).indexOf(kingPosition) >= 0)
-							return true;
-					}
-				}
+		Game copy = game.cloneGame(game);
+		copy.side = !(copy.side);
+
+		copy.updateAllPossibleMoves(copy);
+		for(k = 0; k < copy.allMoves.size(); k++) {
+			if(copy.allMoves.get(k) != null && copy.allMoves.get(k).indexOf(kingPosition) >= 0) {
+				return true;
 			}
 		}
 		return false;
+
 	}
 
 

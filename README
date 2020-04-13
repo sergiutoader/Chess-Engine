@@ -1,5 +1,9 @@
 Update-uri - etapa 2
 
+update - Sergiu - 13.04
+- adaugare conditie de terminare joc
+- evaluarea se calculeaza si in functie de pozitia pionilor
+
 update - Sergiu - 12.04
 - fixat bug minimax
 - am adaugat clasa PieceSquareValues ca sa implementam cateva euristici legate
