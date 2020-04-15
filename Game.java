@@ -128,6 +128,109 @@ public class Game {
 					}
 					
 				}
+				
+				// punctare in functie de pozitia pe care se afla caii
+				if(game.grid[i][j] instanceof Knight && (game.grid[i][j].color == game.side)) {
+					if(game.side == true) {
+						score += PieceSquareValues.WhiteKnightSquare[i][j];
+					} else {
+						score += PieceSquareValues.BlackKnightSquare[i][j];
+					}
+					
+				}
+
+				if(game.grid[i][j] instanceof Knight && (game.grid[i][j].color != game.side)) {
+					if(game.side == true) {
+						score -= PieceSquareValues.WhiteKnightSquare[i][j];
+					} else {
+						score -= PieceSquareValues.BlackKnightSquare[i][j];
+					}
+					
+				}
+				
+				
+				// punctare in functie de pozitia pe care se afla nebunii
+				if(game.grid[i][j] instanceof Bishop && (game.grid[i][j].color == game.side)) {
+					if(game.side == true) {
+						score += PieceSquareValues.WhiteBishopSquare[i][j];
+					} else {
+						score += PieceSquareValues.BlackBishopSquare[i][j];
+					}
+					
+				}
+
+				if(game.grid[i][j] instanceof Bishop && (game.grid[i][j].color != game.side)) {
+					if(game.side == true) {
+						score -= PieceSquareValues.WhiteBishopSquare[i][j];
+					} else {
+						score -= PieceSquareValues.BlackBishopSquare[i][j];
+					}
+					
+				}
+				
+				
+				// punctare in functie de pozitia pe care se afla turele
+				if(game.grid[i][j] instanceof Rook && (game.grid[i][j].color == game.side)) {
+					if(game.side == true) {
+						score += PieceSquareValues.WhiteRookSquare[i][j];
+					} else {
+						score += PieceSquareValues.BlackRookSquare[i][j];
+					}
+					
+				}
+
+				if(game.grid[i][j] instanceof Rook && (game.grid[i][j].color != game.side)) {
+					if(game.side == true) {
+						score -= PieceSquareValues.WhiteRookSquare[i][j];
+					} else {
+						score -= PieceSquareValues.BlackRookSquare[i][j];
+					}
+					
+				}
+				
+				
+				// punctare in functie de pozitia pe care se afla regina
+				if(game.grid[i][j] instanceof Queen && (game.grid[i][j].color == game.side)) {
+					if(game.side == true) {
+						score += PieceSquareValues.WhiteQueenSquare[i][j];
+					} else {
+						score += PieceSquareValues.BlackQueenSquare[i][j];
+					}
+					
+				}
+
+				if(game.grid[i][j] instanceof Queen && (game.grid[i][j].color != game.side)) {
+					if(game.side == true) {
+						score -= PieceSquareValues.WhiteQueenSquare[i][j];
+					} else {
+						score -= PieceSquareValues.BlackQueenSquare[i][j];
+					}
+					
+				}
+				
+				
+				// punctare in functie de pozitia pe care se afla regele
+				if(game.grid[i][j] instanceof King && (game.grid[i][j].color == game.side)) {
+					if(game.side == true) {
+						score += PieceSquareValues.WhiteKingSquare[i][j];
+					} else {
+						score += PieceSquareValues.BlackKingSquare[i][j];
+					}
+					
+				}
+
+				if(game.grid[i][j] instanceof King && (game.grid[i][j].color != game.side)) {
+					if(game.side == true) {
+						score -= PieceSquareValues.WhiteKingSquare[i][j];
+					} else {
+						score -= PieceSquareValues.BlackKingSquare[i][j];
+					}
+					
+				}
+				
+				
+				
+				
 
 				if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color == game.side)) {
 					score += game.grid[i][j].score;
