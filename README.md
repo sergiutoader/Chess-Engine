@@ -1,6 +1,8 @@
 
 --- README cu update-uri ---
 
+update - Andreea - 14.04
+-- Functia de evaluare completa, cu scoruri pentru piese si pozitii pe tabla
 
 update - Sergiu - 10.03
 
