@@ -16,6 +16,10 @@ public class Game {
 
 	public boolean side; // true = white, false = black;
 	public ArrayList<String> allMoves;
+
+	public int[] whitePieceCount;
+	public int[] blackPieceCount;
+
 	public Piece getPiece(int row, int column) {
 		return this.grid[row][column];
 	}
@@ -62,11 +66,39 @@ public class Game {
 		grid[0][4] = new King(getPosition(0, 4), true, this);
 		grid[7][4] = new King(getPosition(7, 4), false, this);
 
+		/*
+			pion - 0 | cal - 1 | nebun - 2 | tura - 3 | regina - 4 | rege - 5
+		*/
+		whitePieceCount = new int[6];
+		blackPieceCount = new int[6];
+
+		whitePieceCount[0] = 8;
+		whitePieceCount[1] = 2;
+		whitePieceCount[2] = 2;
+		whitePieceCount[3] = 2;
+		whitePieceCount[4] = 1;
+		whitePieceCount[5] = 1;
+
+		blackPieceCount[0] = 8;
+		blackPieceCount[1] = 2;
+		blackPieceCount[2] = 2;
+		blackPieceCount[3] = 2;
+		blackPieceCount[4] = 1;
+		blackPieceCount[5] = 1;
+
 	}
 
-	public Game(Boolean side, Piece[][] grid) {
+	public Game(Boolean side, Piece[][] grid, int[] whitePieceCount, int[] blackPieceCount) {
 		this.side = side;
 		this.grid = grid;
+
+		this.whitePieceCount = new int[6];
+		this.blackPieceCount = new int[6];
+
+		for(int i = 0; i < 6; i++) {
+			this.whitePieceCount[i] = whitePieceCount[i];
+			this.blackPieceCount[i] = blackPieceCount[i];
+		}
 	}
 
 	// pentru debug
@@ -259,21 +291,12 @@ public class Game {
 		}
 	}
 
-	// verifica daca numarul de regi de pe grid este diferit de 2
 	public boolean ended(Game game) {
-		int kingCount = 0;
-		for (int i = 0; i < 8; i++) {
-			for(int j = 0; j < 8; j++) {
-				if(game.grid[i][j] instanceof King) {
-					kingCount++;
-				}
-			}
-		}
-		return kingCount != 2;
+		return game.whitePieceCount[5] == 0 || game.blackPieceCount[5] == 0;
 	}
 
 	// Algoritm minimax
-	public Pair <Integer, String> minimax(Game game, int depth) {
+	public Pair <Integer, String> minimax(Game game, int depth, int alfa, int beta) {
 		if(depth == 0 || game.ended(game)) {
 			return new Pair<Integer, String>(game.eval(game), "");
 		}
@@ -293,16 +316,22 @@ public class Game {
 
 			copy.side = !(copy.side);
 
-			int score = -minimax(copy, depth - 1).first;
+			int score = -minimax(copy, depth - 1, -beta, -alfa).first;
 
 			if(score > bestScore) {
 				bestScore = score;
 				bestMove = move; 
 			}
 
+			if(bestScore > alfa) {
+				alfa = bestScore;
+			}
+			if(alfa >= beta) {
+				break;
+			}
 		}
 		
-		return new Pair <Integer, String> (bestScore, bestMove);
+		return new Pair <Integer, String> (alfa, bestMove);
 	}
 
 	// metoda care actualizeaza grid-ul in urma unei mutari
@@ -313,6 +342,8 @@ public class Game {
 		String nextPosition = move.substring(2);
 		int nextRow = getRow(nextPosition);
 		int nextColumn = getColumn(nextPosition);
+
+		updatePieceCount(game, nextRow, nextColumn);
 
 		if (game.grid[i][j] instanceof Pawn && game.grid[i][j].color == game.side) {
 			if(game.side == false) {
@@ -331,9 +362,58 @@ public class Game {
 
 	}
 
+	// Functie care updateaza vectorii whitePieceCount si blackPieceCount
+	public void updatePieceCount(Game game, int i, int j) {
+		if(game.grid[i][j] instanceof Empty) {
+			return;
+		}
+		if(game.grid[i][j] instanceof Pawn) {
+			if(game.grid[i][j].color == true) {
+				game.whitePieceCount[0]--;
+			} else {
+				game.blackPieceCount[0]--;
+			}
+		}
+		if(game.grid[i][j] instanceof Knight) {
+			if(game.grid[i][j].color == true) {
+				game.whitePieceCount[1]--;
+			} else {
+				game.blackPieceCount[1]--;
+			}
+		}
+		if(game.grid[i][j] instanceof Bishop) {
+			if(game.grid[i][j].color == true) {
+				game.whitePieceCount[2]--;
+			} else {
+				game.blackPieceCount[2]--;
+			}
+		}
+		if(game.grid[i][j] instanceof Rook) {
+			if(game.grid[i][j].color == true) {
+				game.whitePieceCount[3]--;
+			} else {
+				game.blackPieceCount[3]--;
+			}
+		}
+		if(game.grid[i][j] instanceof Queen) {
+			if(game.grid[i][j].color == true) {
+				game.whitePieceCount[4]--;
+			} else {
+				game.blackPieceCount[4]--;
+			}
+		}
+		if(game.grid[i][j] instanceof King) {
+			if(game.grid[i][j].color == true) {
+				game.whitePieceCount[5]--;
+			} else {
+				game.blackPieceCount[5]--;
+			}
+		}
+	}
+
 	// Functie care trimite o comanda la xboard in functie de ce intoarce algoritmul minimax
 	public void makeMove(BufferedOutputStream bout) throws IOException {
-		Pair <Integer, String> pair = minimax(this, 3);
+		Pair <Integer, String> pair = minimax(this, 5, -100000, 100000);
 
 		String move = pair.second;
 
@@ -374,6 +454,9 @@ public class Game {
 		if (game.grid[i][j] instanceof Pawn && nextRow == 7) {
 			game.grid[nextRow][nextColumn] = new Queen(
 					nextPosition, true, game);
+			// se actualizeaza vectorii pieceCount
+			game.whitePieceCount[0]--;
+			game.whitePieceCount[4]++;
 		} else {
 			// actualizare grid
 			game.grid[nextRow][nextColumn] = game.grid[i][j];
@@ -409,6 +492,9 @@ public class Game {
 		// daca pionul ajunge in baza oponentului, se transforma in regina
 		if (game.getRow(nextPosition) == 0) {
 			game.grid[nextRow][nextColumn] = new Queen(nextPosition, false, game);
+			// se actualizeaza vectorii pieceCount
+			game.whitePieceCount[0]--;
+			game.whitePieceCount[4]++;
 		} else {
 
 			// actualizare grid
@@ -524,7 +610,7 @@ public class Game {
 
 	// creaza o copie a jocului cu culoarea opusa celei curente
 	public Game cloneGame(Game game) {
-		return new Game((game.side), game.cloneGrid(game.grid));
+		return new Game((game.side), game.cloneGrid(game.grid), game.whitePieceCount, game.blackPieceCount);
 	}
 
 

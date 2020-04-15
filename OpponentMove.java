@@ -12,24 +12,36 @@ public class OpponentMove {
 		// daca comanda are dimensiune 5, oponentul a ajuns cu pionul in baza
 		// engine-ului si a schimbat pionul in alta piesa
 		// se inregistreaza pe gridboard aceasta modificare
+		// se actualizeaza vectorii pieceCount
 		if (command.length() == 5) {
 			game.grid[currRow][currColumn] = null;
+			if(game.side == false) game.whitePieceCount[0]--;
+			else game.blackPieceCount[0]--;
 			switch (command.charAt(4)) {
 			case 'q':
 				game.grid[currRow][currColumn] = new Queen(game.getPosition(currRow, currColumn), !(game.side), game);
+				if(game.side == false) game.whitePieceCount[4]++;
+				else game.blackPieceCount[4]++;
 				break;
 			case 'r':
 				game.grid[currRow][currColumn] = new Rook(game.getPosition(currRow, currColumn), !(game.side), game);
+				if(game.side == false) game.whitePieceCount[3]++;
+				else game.blackPieceCount[3]++;
 				break;
 			case 'b':
 				game.grid[currRow][currColumn] = new Bishop(game.getPosition(currRow, currColumn), !(game.side), game);
+				if(game.side == false) game.whitePieceCount[2]++;
+				else game.blackPieceCount[2]++;
 				break;
 			case 'n':
 				game.grid[currRow][currColumn] = new Knight(game.getPosition(currRow, currColumn), !(game.side), game);
+				if(game.side == false) game.whitePieceCount[1]++;
+				else game.blackPieceCount[1]++;
 				break;
 			}
 		} else {
 			// se pune piesa de pe pozitia anterioara pe pozitia actuala
+			game.updatePieceCount(game, currRow, currColumn);
 			game.grid[currRow][currColumn] = game.grid[prevRow][prevColumn];
 			game.grid[currRow][currColumn].position = command.substring(2);
 		}
