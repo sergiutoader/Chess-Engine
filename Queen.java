@@ -12,7 +12,7 @@ public class Queen extends Piece {
 		this.score = 900;
 
 	}
-
+	
 	public void updatePossibleMoves(boolean side, Game game) {
 		
 		// resetare arrayList possibleMoves

@@ -44,6 +44,7 @@ public class OpponentMove {
 			game.updatePieceCount(game, currRow, currColumn);
 			game.grid[currRow][currColumn] = game.grid[prevRow][prevColumn];
 			game.grid[currRow][currColumn].position = command.substring(2);
+			game.grid[currRow][currColumn].hasMoved = true;
 		}
 		// se actualizeaza pozitia veche cu empty
 		game.grid[prevRow][prevColumn] = new Empty(game.getPosition(prevRow, prevColumn), false, game);

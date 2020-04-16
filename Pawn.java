@@ -11,7 +11,6 @@ public class Pawn extends Piece {
 		this.possibleMoves = new ArrayList<String>();
 		this.game = game;
 		this.score = 100;
-
 	}
 
 	public void updatePossibleMoves(boolean side, Game game) {

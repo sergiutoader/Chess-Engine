@@ -9,7 +9,7 @@ public class Knight extends Piece {
 		this.color = color;
 		this.possibleMoves = new ArrayList<String>();
 		this.game = game;
-		this.score = 330;
+		this.score = 300;
 	}
 
 	public void updatePossibleMoves(boolean side, Game game) {

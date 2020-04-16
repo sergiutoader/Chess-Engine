@@ -8,7 +8,10 @@ public abstract class Piece {
 	public boolean color;
 	public ArrayList <String> possibleMoves;
 	public String enPassant = null;
+
 	public int score;
+
+	public boolean hasMoved = false;
 	
 	public abstract void updatePossibleMoves(boolean side, Game game);
 	protected int getRow(){

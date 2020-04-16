@@ -10,6 +10,12 @@ public class Rook extends Piece {
 		this.possibleMoves = new ArrayList <String>();
 		this.game = game;
 		this.score = 500;
+		this.hasMoved = false;
+	}
+
+	public Rook(String position, boolean color, Game game, boolean hasMoved) {
+		this(position, color, game);
+		this.hasMoved = hasMoved;
 	}
 
 	public void updatePossibleMoves(boolean side, Game game) {
