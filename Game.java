@@ -105,146 +105,6 @@ public class Game {
 		}
 	}
 
-	// Functia de evaluare a grid-ului
-	public int eval(Game game) {
-		int i, j;
-		int score = 0;
-		for(i = 0; i <= 7; i++) {
-			for(j = 0; j <= 7; j++) {
-
-				// punctare in functie de pozitia pe care se afla pionii
-				if(game.grid[i][j] instanceof Pawn && (game.grid[i][j].color == game.side)) {
-					if(game.side == true) {
-						score += PieceSquareValues.WhitePawnSquare[i][j];
-					} else {
-						score += PieceSquareValues.BlackPawnSquare[i][j];
-					}
-					
-				}
-
-				if(game.grid[i][j] instanceof Pawn && (game.grid[i][j].color != game.side)) {
-					if(game.side == true) {
-						score -= PieceSquareValues.WhitePawnSquare[i][j];
-					} else {
-						score -= PieceSquareValues.BlackPawnSquare[i][j];
-					}
-					
-				}
-				
-				// punctare in functie de pozitia pe care se afla caii
-				if(game.grid[i][j] instanceof Knight && (game.grid[i][j].color == game.side)) {
-					if(game.side == true) {
-						score += PieceSquareValues.WhiteKnightSquare[i][j];
-					} else {
-						score += PieceSquareValues.BlackKnightSquare[i][j];
-					}
-					
-				}
-
-				if(game.grid[i][j] instanceof Knight && (game.grid[i][j].color != game.side)) {
-					if(game.side == true) {
-						score -= PieceSquareValues.WhiteKnightSquare[i][j];
-					} else {
-						score -= PieceSquareValues.BlackKnightSquare[i][j];
-					}
-					
-				}
-				
-				
-				// punctare in functie de pozitia pe care se afla nebunii
-				if(game.grid[i][j] instanceof Bishop && (game.grid[i][j].color == game.side)) {
-					if(game.side == true) {
-						score += PieceSquareValues.WhiteBishopSquare[i][j];
-					} else {
-						score += PieceSquareValues.BlackBishopSquare[i][j];
-					}
-					
-				}
-
-				if(game.grid[i][j] instanceof Bishop && (game.grid[i][j].color != game.side)) {
-					if(game.side == true) {
-						score -= PieceSquareValues.WhiteBishopSquare[i][j];
-					} else {
-						score -= PieceSquareValues.BlackBishopSquare[i][j];
-					}
-					
-				}
-				
-				
-				// punctare in functie de pozitia pe care se afla turele
-				if(game.grid[i][j] instanceof Rook && (game.grid[i][j].color == game.side)) {
-					if(game.side == true) {
-						score += PieceSquareValues.WhiteRookSquare[i][j];
-					} else {
-						score += PieceSquareValues.BlackRookSquare[i][j];
-					}
-					
-				}
-
-				if(game.grid[i][j] instanceof Rook && (game.grid[i][j].color != game.side)) {
-					if(game.side == true) {
-						score -= PieceSquareValues.WhiteRookSquare[i][j];
-					} else {
-						score -= PieceSquareValues.BlackRookSquare[i][j];
-					}
-					
-				}
-				
-				// punctare in functie de pozitia pe care se afla regina
-				if(game.grid[i][j] instanceof Queen && (game.grid[i][j].color == game.side)) {
-					if(game.side == true) {
-						score += PieceSquareValues.WhiteQueenSquare[i][j];
-					} else {
-						score += PieceSquareValues.BlackQueenSquare[i][j];
-					}
-					
-				}
-
-				if(game.grid[i][j] instanceof Queen && (game.grid[i][j].color != game.side)) {
-					if(game.side == true) {
-						score -= PieceSquareValues.WhiteQueenSquare[i][j];
-					} else {
-						score -= PieceSquareValues.BlackQueenSquare[i][j];
-					}			
-				}	
-				
-				// punctare in functie de pozitia pe care se afla regele
-				// daca nu niciun jucator nu mai are regine, se trece la o stategie late-game
-				if(game.grid[i][j] instanceof King && (game.grid[i][j].color == game.side)) {
-					if(game.whitePieceCount[4] != 0 || game.blackPieceCount[4] != 0) {
-						if(game.side == true) {
-							score += PieceSquareValues.WhiteKingSquare[i][j];
-						} else {
-							score += PieceSquareValues.BlackKingSquare[i][j];
-						}
-					} else {
-						score += PieceSquareValues.KingEndgameSquare[i][j];
-					}
-				}
-
-				if(game.grid[i][j] instanceof King && (game.grid[i][j].color != game.side)) {
-					if(game.whitePieceCount[4] != 0 || game.blackPieceCount[4] != 0) {
-						if(game.side == true) {
-							score -= PieceSquareValues.WhiteKingSquare[i][j];
-						} else {
-							score -= PieceSquareValues.BlackKingSquare[i][j];
-						}
-					} else {
-						score -= PieceSquareValues.KingEndgameSquare[i][j];
-					}
-				}	
-
-				if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color == game.side)) {
-					score += game.grid[i][j].score;
-				} else if (!(game.grid[i][j] instanceof Empty) && (game.grid[i][j].color != game.side)){
-					score -= game.grid[i][j].score;
-				}
-			}
-		}
-		return score;
-	}
-
-
 	// intorce o lista de mutari complete (care contin atat sursa cat si destinatia)
 	public void updateAllPossibleMoves(Game game) {
 		int i, j;
@@ -261,15 +121,11 @@ public class Game {
 		}
 	}
 
-	public boolean ended(Game game) {
-		return game.whitePieceCount[5] == 0 || game.blackPieceCount[5] == 0;
-	}
-
 
 	// Algoritm minimax
 	public Pair <Integer, String> minimax(Game game, int depth, int alfa, int beta) {
-		if(depth == 0 || game.ended(game)) {
-			return new Pair<Integer, String>(game.eval(game), "");
+		if(depth == 0 || Evaluate.ended(game)) {
+			return new Pair<Integer, String>(Evaluate.eval(game), "");
 		}
 
 		game.updateAllPossibleMoves(game);		
@@ -284,7 +140,6 @@ public class Game {
 		for(String move : game.allMoves) {
 			Game copy = game.cloneGame(game);
 			copy.applyMove(copy, move);
-
 			copy.side = !(copy.side);
 
 			int score = -minimax(copy, depth - 1, -beta, -alfa).first;
@@ -336,7 +191,7 @@ public class Game {
 
 	// Functie care trimite o comanda la xboard in functie de ce intoarce algoritmul minimax
 	public void makeMove(BufferedOutputStream bout) throws IOException {
-		Pair <Integer, String> pair = minimax(this, 5, -100000, 100000);
+		Pair <Integer, String> pair = minimax(this, 4, -100000, 100000);
 
 		String move = pair.second;
 
@@ -355,8 +210,8 @@ public class Game {
 		this.grid[nextRow][nextColumn].hasMoved = true;
 
 		// daca a dat o mutare ilegala, dau resign
-		// asta se intampla in cazul in care este pus in sah, iar singuele
-		// mutari legale pe care le poate face va da posibilitatea oponentului sa dea sah mat
+		// asta se intampla in cazul in care este pus in sah, iar singurele
+		// mutari legale pe care le poate face vor da posibilitatea oponentului sa dea sah mat
 		// (practic toate evaluarile din minimax conduc la un joc pierdut) 
 		if(this.isCheck(this)) {
 			bout.write(String.format("resign\n").getBytes());
@@ -583,7 +438,29 @@ public class Game {
 			}
 		}
 		return false;
+	}
 
+	// verifica daca regele trece prin sah atunci cand efectueaza rocada
+	public boolean checkCastling(Game game, String[] positions) {
+		Game copy = game.cloneGame(game);
+		copy.side = !(copy.side);
+
+		for(int i = 0 ; i < 8; i++) {
+			for(int j = 0; j < 8; j++) {
+				if(copy.grid[i][j] instanceof Empty == false && copy.grid[i][j] instanceof King == false && copy.grid[i][j].color == copy.side) {
+					// calculare mutari legale pentru adversar
+					copy.grid[i][j].updatePossibleMoves(copy.side, copy);
+					for(int t = 0; t < copy.grid[i][j].possibleMoves.size(); t++) {
+						for(int k = 0; k < positions.length; k++) {
+							if(copy.grid[i][j].possibleMoves.get(t).indexOf(positions[k]) >= 0) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 
@@ -653,7 +530,8 @@ public class Game {
 
 	// creaza o copie a jocului cu culoarea opusa celei curente
 	public Game cloneGame(Game game) {
-		return new Game((game.side), game.cloneGrid(game.grid), game.whitePieceCount, game.blackPieceCount, game.castling);
+		return new Game(game.side, game.cloneGrid(game.grid),
+			game.whitePieceCount, game.blackPieceCount, game.castling);
 	}
 
 
@@ -726,7 +604,6 @@ public class Game {
 	public void printGrid() throws FileNotFoundException {
 		StringBuilder gridb = new StringBuilder();
 		PrintWriter wr = new PrintWriter(new File("grid.txt"));
-		wr.append("Engine evaluates to " + this.eval(this) + "\n");
 		for (int i = 7; i >= 0; i--) {
 			for (int j = 0; j < 8; j++) {
 				if (grid[i][j] instanceof Empty) {
