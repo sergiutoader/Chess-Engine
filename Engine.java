@@ -1,6 +1,7 @@
 
 import java.util.Scanner;
-import java.io.*;
+import java.io.IOException;
+import java.io.BufferedOutputStream;
 
 public class Engine {
 	public static void main(String args[]) throws IOException {
