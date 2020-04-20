@@ -1,0 +1,7 @@
+Chestii de facut:
+
+- Implementat rocada
+- modificat modul de alegere al mutarilor (sa nu mai aleaga prima mutare legala)
+	-> alegere cu minimax
+	-> sistem de punctare a pieselor
+	-> retinerea tuturor mutarilor legale intr-o colectie (allPossibleMoves) -> pentru minimax
